@@ -1,5 +1,5 @@
 === HTTPS domain alias ===
-Contributors: otto
+Contributors: ottok
 Tags: https, ssl, tls, alias, domain
 Donate link: http://seravo.fi/
 Requires at least: 3.8
