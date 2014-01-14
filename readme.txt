@@ -16,7 +16,9 @@ This plugin is useful e.g. if you have a wildcard SSL/TLS certificate for server
 
 If the site is normally at say `http://example.org/` and you want to have the admin area https protected, but you don't have a SSL/TLS certificate so that `https://example.org/` would work, you can define another domain for secure connections to that instead of `https://example.org/wp-login.php` or `https://example.org/wp-admin/` the user is redirected to `https://example.example.com/wp-login.php` and `https://example.example.com/wp-admin/`.
 
+This plugin is made by [Seravo Oy](http://seravo.fi/), the Finnish WordPress and open source experts company.
 
+Source available at https://github.com/Seravo/wp-https-domain-alias
 
 == Installation ==
 1. Upload `https-domain-alias.php` to the `/wp-content/plugins/` directory.
