@@ -88,4 +88,12 @@ function _redirect_https_domain_rewrite($location, $status = 0) {
 }
 add_filter('wp_redirect', '_redirect_https_domain_rewrite');
 
+if (!defined('WP_SITEURL')) {
+  error_log("Constant WP_SITEURL is not defined");
+}
+
+if (!defined('HTTPS_DOMAIN_ALIAS')) {
+  error_log("Constant HTTPS_DOMAIN_ALIAS is not defined");
+}
+
 ?>
