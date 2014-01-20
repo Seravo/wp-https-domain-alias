@@ -33,11 +33,11 @@
  * protocol is HTTPS.
  *
  * This function is not bulletproof, and expects both {@see WP_SITEURL} and
- * {@see SSL_DOMAIN_ALIAS} to be defined.
+ * {@see HTTPS_DOMAIN_ALIAS} to be defined.
  *
  * Make sure the wp-config.php defines the needed constants, e.g.
  *   define( 'WP_SITEURL', 'http://coss.fi' );
- *   define( 'SSL_DOMAIN_ALIAS', 'coss.seravo.fi' );
+ *   define( 'HTTPS_DOMAIN_ALIAS', 'coss.seravo.fi' );
  *   define( 'FORCE_SSL_LOGIN', true );
  *   define( 'FORCE_SSL_ADMIN', true );
  *
