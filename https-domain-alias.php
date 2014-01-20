@@ -88,6 +88,21 @@ function _redirect_https_domain_rewrite($location, $status = 0) {
 }
 add_filter('wp_redirect', '_redirect_https_domain_rewrite');
 
+/**
+ * Use HTTP URL to preview posts
+ *
+ * Preview posts should not be done via HTTPS to avoid mixed-content error
+ *
+ * @param null $null (no parameter is passed)
+ * @return string $url
+ */
+function _set_preview_link() {
+    $http_home_url = home_url();
+    $slug = basename( get_permalink() );
+    return "$http_home_url$slug&preview=true";
+}
+add_filter( 'preview_post_link', '_set_preview_link' );
+
 if (!defined('WP_SITEURL')) {
   error_log("Constant WP_SITEURL is not defined");
 }
