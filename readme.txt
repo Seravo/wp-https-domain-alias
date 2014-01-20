@@ -4,7 +4,7 @@ Tags: https, ssl, tls, alias, domain
 Donate link: http://seravo.fi/
 Requires at least: 3.8
 Tested up to: 3.8
-Stable tag: 0.2
+Stable tag: 0.3
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -44,6 +44,9 @@ This plugin has no visible UI, the magic happens automatically is the plugin is 
 None.
 
 == Changelog ==
+
+= 0.3 =
+* Merged pull request on http preview
 
 = 0.2 =
 * Improved readme.txt. Log error if the needed constats don't exist.
