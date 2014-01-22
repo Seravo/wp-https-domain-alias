@@ -10,28 +10,6 @@
  * License: GPLv3
  */
 
-/*
-The plugin scenario assumes the site domain is example.com but there is no
-https certificate for it. Instead there is a https certificate for
-example.org, which has been defined as the HTTPS_DOMAIN_ALIAS.
-
-In a WordPress Network installation the HTTPS_DOMAIN_ALIAS can be defined
-as *.example.org and then <domain.tld> will be redirected
-to <domain>.example.org. This plugin is designed to be compatible with
-the WordPress MU Domain Mapping plugin.
-
-Possible values of $location when calling this function
- - http://example.com
- - https://example.com         <- the case where https fails and we want to avoid
- - http://example.example.org
- - https://example.example.org <- the case where https works
-
-* Function logic:
-*  1. If scheme http, don't rewrite.
-*  2. If scheme https and (*.)example.org, don't rewrite.
-*  3. If scheme https and domain not (*.)example.org, rewrite top-level
-*     domain with example.org. E.g. crecco.fi -> crecco.seravo.fi.
-*/
 /*  Copyright 2014  Otto Kekäläinen / Seravo Oy
 
     This program is free software; you can redistribute it and/or modify
@@ -40,7 +18,7 @@ Possible values of $location when calling this function
 
     This program is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
@@ -51,11 +29,8 @@ Possible values of $location when calling this function
 /**
  * @package HTTPS_Domain_Alias
  *
- * Swap out the current site domain with {@see HTTPS_DOMAIN_ALIAS} if the
+ * Make sure a https capable domain is used {@see HTTPS_DOMAIN_ALIAS} if the
  * protocol is HTTPS.
- *
- * This function is not bulletproof, and requires {@see HTTPS_DOMAIN_ALIAS}
- * to be defined.
  *
  * Make sure the wp-config.php defines the needed constants, e.g.
  *   define('FORCE_SSL_LOGIN', true);
@@ -64,83 +39,61 @@ Possible values of $location when calling this function
  *
  * On a WordPress Network install HTTPS_DOMAIN_ALIAS can also be
  * defined with a wildcard, e.g. '*.seravo.fi'.
+ * Compatible with WordPress MU Domain Mapping.
  *
- * The function site_url() will always return the URL, e.g. 'http://coss.fi'
+ * Example:
+ *  Redirect never points to https://coss.fi/..
+ *  but instead always to https://coss.seravo.fi/...
  *
- * @param string $url
- * @return string
- */
-function _https_domain_alias($url) {
-  static $domain;
-  //debug: error_log("url i=$url");
-
-  if (!isset($domain)) {
-    if (home_url() && defined('HTTPS_DOMAIN_ALIAS')) {
-      $domain = parse_url(home_url(), PHP_URL_HOST);
-    } else {
-      $domain = false;
-    }
-  }
-
-  if ($domain && strpos($url, 'https') === 0 ) {
-    $url = str_replace($domain, HTTPS_DOMAIN_ALIAS, $url);
-  }
-
-  //debug: error_log("url o=$url");
-  return $url;
-}
-
-
-/**
- * Make sure no redirect never points to https://coss.fi/..
- * but instead * always to https://coss.seravo.fi/...
- *
- * Intended to be used in combination with plugin https-alias-domain.php
+ * For more information see readme.txt
  *
  * @param string $url
  * @param string $status (optional, not used in this function)
  * @return string
  */
-function _redirect_https_domain_rewrite($location, $status = 0) {
-
+function _https_domain_rewrite($url, $status = 0) {
   //debug: error_log("status=$status");
-  //debug:
-  error_log("Location-i=$location");
+  //debug: error_log("url-i=$url");
 
-  // Parse redirect URL from WordPress
-  $locationUrl = parse_url($location);
+  // If scheme not https, don't rewrite.
+  if (substr($url, 0, 5) == 'https') {
 
-  // If scheme http, don't rewrite.
-  if ($locationUrl['scheme'] == 'https') {
+    // Assume domain is always same for all calls to this function
+    // during same request and thus define some variables as static.
+    static $domain;
+    if (!isset($domain)) {
+      $domain = parse_url(home_url(), PHP_URL_HOST);
+      //debug: error_log("domain=$domain");
+    }
 
-    // Check $location differently if wildcard defined (likely to be a
-    // WordPress Network) or not (likely a single WordPress installation).
-    if (strpos(HTTPS_DOMAIN_ALIAS, '*') !== false) {
-
-      $wildcardDomainAlias = substr(HTTPS_DOMAIN_ALIAS, 2);
-      //debug: error_log("wildcardDomainAlias=$wildcardDomainAlias");
-
-      // If $location does not include wildcard domain alias, rewrite it.
-      if (strpos($locationUrl['host'], $wildcardDomainAlias) === false) {
-        $locationDomainBase = substr($locationUrl['host'], 0, strrpos($locationUrl['host'], '.'));
-        //debug: error_log("locationDomainBase=$locationDomainBase");
-        $location = str_ireplace($locationUrl['host'], "$locationDomainBase.$wildcardDomainAlias", $location);
+    static $domainAlias;
+    if (!isset($domainAlias)) {
+       if (substr(HTTPS_DOMAIN_ALIAS, -strlen($domain)) == $domain) {
+        // Special case: $domainAlias ends with $domain,
+        // which is possible in WP Network when requesting
+        // the main site, don't rewrite urls as a https
+        // certificate for sure exists for direct domain.
+        // e.g. domain seravo.fi, domain alias *.seravo.fi
+        $domainAlias = $domain;
+      } else if (substr(HTTPS_DOMAIN_ALIAS, 0, 1) == '*') {
+        $domainBase = substr($domain, 0, strpos($domain, '.'));
+        $domainAliasBase = substr(HTTPS_DOMAIN_ALIAS, 1);
+        $domainAlias = $domainBase . $domainAliasBase;
+      } else {
+        $domainAlias = HTTPS_DOMAIN_ALIAS;
       }
+      //debug: error_log("domainAlias=$domainAlias");
+    }
 
-    } else {
-
-      // If $location does not include simple https domain alias, rewrite it.
-      if ($locationUrl['host'] != HTTPS_DOMAIN_ALIAS) {
-        $location = str_ireplace($locationUrl['host'], HTTPS_DOMAIN_ALIAS, $location);
-      }
-
+    // If $location does not include simple https domain alias, rewrite it.
+    if ($domain != $domainAlias) {
+      $url = str_ireplace($domain, $domainAlias, $url);
+      //debug: error_log("url-o=$url");
     }
 
   }
 
-  //debug:
-  error_log("Location-o=$location");
-  return $location;
+  return $url;
 }
 
 
@@ -153,27 +106,32 @@ function _redirect_https_domain_rewrite($location, $status = 0) {
  * @return string $url
  */
 function _set_preview_link() {
-  error_log('here2');
-
     $http_home_url = home_url();
-    $slug = basename( get_permalink() );
+    $slug = basename(get_permalink());
     return $http_home_url . $slug . '&preview=true';
 }
 
 
 /*
- * Register filters only if HTTPS_DOMAIN_DEFINED
+ * Register filters only if HTTPS_DOMAIN_ALIAS defined
  */
 if (defined('HTTPS_DOMAIN_ALIAS')) {
-  add_filter('plugins_url', '_https_domain_alias', 1);
-  add_filter('content_url', '_https_domain_alias', 1);
-  add_filter('site_url', '_https_domain_alias', 1);
 
-  add_filter('preview_post_link', '_set_preview_link');
+  // A redirect to https may happen from pages server via http
+  add_filter('wp_redirect', '_https_domain_rewrite');
 
-  add_filter('wp_redirect', '_redirect_https_domain_rewrite');
+  // These are only needed if site is already accessed via https
+  if (is_ssl()) {
+    add_filter('plugins_url', '_https_domain_rewrite', 1);
+    add_filter('content_url', '_https_domain_rewrite', 1);
+    add_filter('site_url', '_https_domain_rewrite', 1);
+    add_filter('preview_post_link', '_set_preview_link');
+  }
 } else {
-  error_log("Constant HTTPS_DOMAIN_ALIAS is not defined");
+
+  error_log('Constant HTTPS_DOMAIN_ALIAS is not defined');
+
 }
+
 
 ?>
