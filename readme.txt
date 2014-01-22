@@ -24,10 +24,21 @@ Source available at https://github.com/Seravo/wp-https-domain-alias
 1. Upload `https-domain-alias.php` to the `/wp-content/plugins/` directory.
 2. Activate the plugin through the "Plugins" menu in WordPress.
 3. Make sure the `wp-config.php` defines the needed constants, e.g.:
-        define( 'WP_SITEURL', 'http://example.org' );
-        define( 'HTTPS_DOMAIN_ALIAS', 'example.example.com' );
         define( 'FORCE_SSL_LOGIN', true );
         define( 'FORCE_SSL_ADMIN', true );
+        define( 'HTTPS_DOMAIN_ALIAS', 'example.example.com' );
+
+The plugin scenario assumes the site domain is example.com but there is no https certificate for it. Instead there is a https certificate for example.org, which has been defined as the HTTPS_DOMAIN_ALIAS.
+
+In a WordPress Network installation the HTTPS_DOMAIN_ALIAS can be defined as *.example.org and then <domain.tld> will be redirected to <domain>.example.org. This plugin is designed to be compatible with
+the WordPress MU Domain Mapping plugin.
+
+Possible values of $location when calling this function
+ - http://example.com
+ - https://example.com         <- the case where https fails and we want to avoid
+ - http://example.example.org
+ - https://example.example.org <- the case where https works
+
 
 == Frequently Asked Questions ==
 
