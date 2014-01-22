@@ -4,7 +4,7 @@ Tags: https, ssl, tls, alias, domain
 Donate link: http://seravo.fi/
 Requires at least: 3.8
 Tested up to: 3.8
-Stable tag: 0.4
+Stable tag: 0.5
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -18,15 +18,11 @@ If the site is normally at say `http://example.org/` and you want to have the ad
 
 For example instead of `https://example.org/wp-login.php` or `https://example.org/wp-admin/` the user is redirected to `https://example.seravo.fi/wp-login.php` or `https://example.seravo.fi/wp-admin/`.
 
-Example when on coss.fi HTTPS_DOMAIN_ALIAS is 'coss.seravo.fi':
+This plugin works with both normal WordPress installations and WordPress Network installation and is compatible with the WordPress MU Domain Mapping plugin.
 
-        $ curl -I http://coss.fi/wp-admin/
-        HTTP/1.1 302 Found
-        Location: https://coss.seravo.fi/wp-admin/
+The code is optimized to be fast and does not for example do any database lookups or use cookies.
 
-This plugin also works with both normal WordPress installations and WordPress Network installation and compatible with WordPress MU Domain Mapping. The code is optimized to be fast and does not for example do any database lookups or use cookies.
-
-This plugin is made by [Seravo Oy](http://seravo.fi/), which specializes in open source support services and among others is the only company in Finland to provide (WordPress Premium Hosting)[http://seravo.fi/wordpress-palvelu].
+This plugin is made by [Seravo Oy](http://seravo.fi/), which specializes in open source support services and among others is the only company in Finland to provide [WordPress Premium Hosting](http://seravo.fi/wordpress-palvelu).
 
 Source available at https://github.com/Seravo/wp-https-domain-alias
 
@@ -34,9 +30,10 @@ Source available at https://github.com/Seravo/wp-https-domain-alias
 1. Upload `https-domain-alias.php` to the `/wp-content/plugins/` directory.
 2. Activate the plugin through the "Plugins" menu in WordPress.
 3. Make sure the `wp-config.php` defines the needed constants, e.g.:
-        define('FORCE_SSL_LOGIN', true);
-        define('FORCE_SSL_ADMIN', true);
-        define('HTTPS_DOMAIN_ALIAS', 'example.org');
+
+    define('FORCE_SSL_LOGIN', true);
+    define('FORCE_SSL_ADMIN', true);
+    define('HTTPS_DOMAIN_ALIAS', 'example.org');
 
 The plugin scenario assumes the site domain is example.com but there is no https certificate for it. Instead there is a https certificate for example.org, which has been defined as the HTTPS_DOMAIN_ALIAS.
 
@@ -44,17 +41,17 @@ In a WordPress Network installation the HTTPS_DOMAIN_ALIAS can be defined as *.e
 the WordPress MU Domain Mapping plugin.
 
 Possible values of $location when calling this function
- - http://example.com
- - https://example.com         <- the case where https fails and we want to avoid
- - http://example.example.org
- - https://example.example.org <- the case where https works
+-   http://example.com
+-   https://example.com         <- the case where https fails and we want to avoid
+-   http://example.example.org
+-   https://example.example.org <- the case where https works
 
 
 == Frequently Asked Questions ==
 
 = Does this work for WordPress Network? =
 
-Probably not. This plugin is intended for WP single installations. For WP Network installs there are other ways to achieve the same result.
+Yes, since version 0.4.
 
 = Where is the UI? =
 
@@ -62,9 +59,18 @@ This plugin has no visible UI, the magic happens automatically is the plugin is 
 
 == Screenshots ==
 
-None.
+Example when on **coss.fi** HTTPS_DOMAIN_ALIAS is **coss.seravo.fi**:
+
+    $ curl -I http://coss.fi/wp-admin/
+    HTTP/1.1 302 Found
+    Location: https://coss.seravo.fi/wp-admin/
 
 == Changelog ==
+
+Note that complete commit log is available at https://github.com/Seravo/wp-https-domain-alias/commits/master
+
+= 0.5 =
+* Updated readme.txt
 
 = 0.4 =
 * Enhanced to also support WordPress Network installations.
