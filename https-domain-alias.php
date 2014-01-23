@@ -52,6 +52,7 @@
  * @return string
  */
 function _https_domain_rewrite($url, $status = 0) {
+
   //debug: error_log("status=$status");
   //debug: error_log("url-i=$url");
 
@@ -101,14 +102,23 @@ function _https_domain_rewrite($url, $status = 0) {
  * Use HTTP URL to preview posts
  *
  * Preview posts should not be done via HTTPS to avoid mixed-content error
+ * Example of preview link:
+ * http://pateniemenranta.seravo.fi/pateniemenranta/?preview=true&preview_id=1681&preview_nonce=01972b45a0
  *
- * @param null $null (no parameter is passed)
+ * @param string $url
  * @return string $url
  */
-function _set_preview_link() {
-    $http_home_url = home_url();
-    $slug = basename(get_permalink());
-    return $http_home_url . $slug . '&preview=true';
+function _set_preview_link($url) {
+
+    //debug: error_log('preview-i: '.$url);
+    // Make sure we use https in preview so that
+    // the logged in user session is found
+    $url = str_ireplace('http:', 'https:', $url);
+
+    // Make sure our https link has valid domain
+    $url = _https_domain_rewrite($url);
+
+    return $url;
 }
 
 
@@ -125,10 +135,12 @@ if (defined('HTTPS_DOMAIN_ALIAS')) {
 
   // These are only needed if site is already accessed via https
   if (is_ssl()) {
-    add_filter('plugins_url', '_https_domain_rewrite', 1);
-    add_filter('content_url', '_https_domain_rewrite', 1);
-    add_filter('site_url', '_https_domain_rewrite', 1);
-    add_filter('home_url', '_https_domain_rewrite');
+    add_filter('plugins_url', '_https_domain_rewrite');
+    add_filter('content_url', '_https_domain_rewrite');
+    add_filter('site_url', '_https_domain_rewrite');
+    // Disabled home_url filter as it segfaults PHP
+    // when actual sites (not wp-admin) are accessed via https
+    // add_filter('home_url', '_https_domain_rewrite');
     add_filter('preview_post_link', '_set_preview_link');
   }
 } else {
