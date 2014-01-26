@@ -4,7 +4,7 @@
  * Plugin Name: HTTPS domain alias
  * Plugin URI: https://github.com/Seravo/wp-https-domain-alias
  * Description: Enable your site to have a different domains for HTTP and HTTPS. Useful e.g. if you have a wildcard SSL/TLS certificate for server but not for each site.
- * Version: 0.6
+ * Version: 0.7
  * Author: Otto Kekäläinen / Seravo Oy
  * Author URI: http://seravo.fi
  * License: GPLv3
@@ -121,6 +121,25 @@ function _set_preview_link($url) {
     return $url;
 }
 
+/**
+ * DEbug wrapper
+ *
+ *
+ * @param string $url
+ * @param string $path
+ * @param string $plugins
+ * @return string $url
+ */
+function _debug_rewrite($url, $path=false, $plugin=false) {
+/*
+  error_log("url=$url");
+  error_log("path=$path");
+  error_log("plugin=$plugin");
+*/
+  $url = _https_domain_rewrite($url);
+  error_log("return=$url");
+  return $url;
+}
 
 /*
  * Register filters only if HTTPS_DOMAIN_ALIAS defined
@@ -149,5 +168,18 @@ if (defined('HTTPS_DOMAIN_ALIAS')) {
 
 }
 
+function https_domain_alias_must_be_first_plugin() {
+  // ensure path to this file is via main wp plugin path
+  $wp_path_to_this_file = preg_replace('/(.*)plugins\/(.*)$/', WP_PLUGIN_DIR."/$2", __FILE__);
+  $this_plugin = plugin_basename(trim($wp_path_to_this_file));
+  $active_plugins = get_option('active_plugins');
+  $this_plugin_key = array_search($this_plugin, $active_plugins);
+  if ($this_plugin_key) { // if it's 0 it's the first plugin already, no need to continue
+    array_splice($active_plugins, $this_plugin_key, 1);
+    array_unshift($active_plugins, $this_plugin);
+    update_option('active_plugins', $active_plugins);
+  }
+}
+add_action('activated_plugin', 'https_domain_alias_must_be_first_plugin');
 
 ?>

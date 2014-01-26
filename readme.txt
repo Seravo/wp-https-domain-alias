@@ -4,7 +4,7 @@ Tags: https, ssl, tls, alias, domain
 Donate link: http://seravo.fi/
 Requires at least: 3.8
 Tested up to: 3.8
-Stable tag: 0.6
+Stable tag: 0.7
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -34,7 +34,6 @@ Source available at https://github.com/Seravo/wp-https-domain-alias
 
 Example:
 
-    define('FORCE_SSL_LOGIN', true);
     define('FORCE_SSL_ADMIN', true);
     define('HTTPS_DOMAIN_ALIAS', 'example.org');
 
@@ -53,13 +52,19 @@ Possible values of $location when calling this function
 
 == Frequently Asked Questions ==
 
-= Does this work for WordPress Network? =
+=== Does this work for WordPress Network? ===
 
 Yes, since version 0.4.
 
-= Where is the UI? =
+=== Where is the UI? ===
 
 This plugin has no visible UI, the magic happens automatically is the plugin is active.
+
+=== What does FORCE_SSL_ADMIN do? ===
+
+See http://codex.wordpress.org/Administration_Over_SSL
+
+Note that defining FORCE_SSL_LOGIN is not needed.
 
 == Screenshots ==
 
@@ -73,23 +78,27 @@ Example when on **coss.fi** HTTPS_DOMAIN_ALIAS is **coss.seravo.fi**:
 
 Note that complete commit log is available at https://github.com/Seravo/wp-https-domain-alias/commits/master
 
-= 0.6 =
+=== 0.7 ===
+
+Added debug wrapper and made sure thi plugin is load first of all plugins.
+
+=== 0.6 ===
 * Bugfixes for preview mode and non-admin https pages.
 
-= 0.5 =
+=== 0.5 ===
 * Updated readme.txt
 
-= 0.4 =
+=== 0.4 ===
 * Enhanced to also support WordPress Network installations.
 * Refactored code to be robust in all known situations.
 
-= 0.3 =
+=== 0.3 ===
 * Merged pull request on http preview
 
-= 0.2 =
+=== 0.2 ===
 * Improved readme.txt. Log error if the needed constats don't exist.
 
-= 0.1 =
+=== 0.1 ===
 * Initial release.
 
 == Upgrade Notice ==
