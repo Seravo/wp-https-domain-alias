@@ -4,7 +4,7 @@ Tags: https, ssl, tls, alias, domain
 Donate link: http://seravo.fi/
 Requires at least: 3.8
 Tested up to: 3.8
-Stable tag: 0.7
+Stable tag: 0.8
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -78,9 +78,11 @@ Example when on **coss.fi** HTTPS_DOMAIN_ALIAS is **coss.seravo.fi**:
 
 Note that complete commit log is available at https://github.com/Seravo/wp-https-domain-alias/commits/master
 
-=== 0.7 ===
+=== 0.8 ===
+* Fix home_url ininite loop and thus enable rewrites for it too
 
-Added debug wrapper and made sure thi plugin is load first of all plugins.
+=== 0.7 ===
+* Added debug wrapper and made sure thi plugin is load first of all plugins.
 
 === 0.6 ===
 * Bugfixes for preview mode and non-admin https pages.

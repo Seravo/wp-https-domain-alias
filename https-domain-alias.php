@@ -4,7 +4,7 @@
  * Plugin Name: HTTPS domain alias
  * Plugin URI: https://github.com/Seravo/wp-https-domain-alias
  * Description: Enable your site to have a different domains for HTTP and HTTPS. Useful e.g. if you have a wildcard SSL/TLS certificate for server but not for each site.
- * Version: 0.7
+ * Version: 0.8
  * Author: Otto Kekäläinen / Seravo Oy
  * Author URI: http://seravo.fi
  * License: GPLv3
@@ -25,7 +25,6 @@
     along with this program; if not, write to the Free Software
     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
-
 /**
  * @package HTTPS_Domain_Alias
  *
@@ -63,7 +62,8 @@ function _https_domain_rewrite($url, $status = 0) {
     // during same request and thus define some variables as static.
     static $domain;
     if (!isset($domain)) {
-      $domain = parse_url(home_url(), PHP_URL_HOST);
+      // Avoid an infinite loop by defining home_url request with scheme https here
+      $domain = parse_url(home_url($path = '/', $scheme = 'http'), PHP_URL_HOST);
       //debug: error_log("domain=$domain");
     }
 
@@ -130,11 +130,12 @@ function _set_preview_link($url) {
  * @param string $plugins
  * @return string $url
  */
-function _debug_rewrite($url, $path=false, $plugin=false) {
+function _debug_rewrite($url, $path=false, $plugin=false, $extra=false) {
 /*
   error_log("url=$url");
   error_log("path=$path");
   error_log("plugin=$plugin");
+  error_log("extra=$extra");
 */
   $url = _https_domain_rewrite($url);
   error_log("return=$url");
@@ -157,9 +158,7 @@ if (defined('HTTPS_DOMAIN_ALIAS')) {
     add_filter('plugins_url', '_https_domain_rewrite');
     add_filter('content_url', '_https_domain_rewrite');
     add_filter('site_url', '_https_domain_rewrite');
-    // Disabled home_url filter as it segfaults PHP
-    // when actual sites (not wp-admin) are accessed via https
-    // add_filter('home_url', '_https_domain_rewrite');
+    add_filter('home_url', '_https_domain_rewrite');
     add_filter('preview_post_link', '_set_preview_link');
   }
 } else {
