@@ -216,7 +216,7 @@ function build_readme_page() {
 
 	<p>&nbsp;</p>
 
-	<p>HTTPS Domain Alias version 0.9 by <a href="http://seravo.fi/">Seravo Oy</a>.</small>
+	<p><small>HTTPS Domain Alias is made by <a href="http://seravo.fi/">Seravo Oy</a>, which specializes in open source support services and among others is the only company in Finland to provide [WordPress Premium Hosting](http://seravo.fi/wordpress-palvelu).</small></p>
 
 </div>
 

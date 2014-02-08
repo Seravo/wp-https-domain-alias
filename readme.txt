@@ -4,7 +4,7 @@ Tags: https, ssl, tls, alias, domain
 Donate link: http://seravo.fi/
 Requires at least: 3.8
 Tested up to: 3.8
-Stable tag: 0.8
+Stable tag: 0.9
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
