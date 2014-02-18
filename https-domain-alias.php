@@ -8,6 +8,7 @@
  * Author URI: http://seravo.fi
  * License: GPLv3
  */
+
 /*  Copyright 2014  Otto Kekäläinen / Seravo Oy
 
     This program is free software; you can redistribute it and/or modify
@@ -23,7 +24,6 @@
     along with this program; if not, write to the Free Software
     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
-
 
 /**
  * @package HTTPS_Domain_Alias
@@ -50,6 +50,7 @@
  * @param string $status (optional, not used in this function)
  * @return string
  */
+
 function _https_domain_rewrite($url, $status = 0) {
 
   //debug: error_log("status=$status");
@@ -121,7 +122,6 @@ function _set_preview_link($url) {
     return $url;
 }
 
-
 /**
  * Debug wrapper
  *
@@ -142,7 +142,6 @@ function _debug_rewrite($url, $path=false, $plugin=false, $extra=false) {
   error_log("return=$url");
   return $url;
 }
-
 
 /*
  * Register filters only if HTTPS_DOMAIN_ALIAS defined
@@ -169,15 +168,6 @@ if (defined('HTTPS_DOMAIN_ALIAS')) {
 
 }
 
-/*
- * Make sure this plugin loads as first so that the filters will be applied
- * to all plugins before they fetch or define any URLs.
- *
- * This function will only take effect at the time when some plugin is activated,
- * does not apply directly for old installs and in general is brittle to brake,
- * as something else might edit the plugin list in the database options table
- * and thus lower the priorty for this plugin.
- */
 function https_domain_alias_must_be_first_plugin() {
   // ensure path to this file is via main wp plugin path
   $wp_path_to_this_file = preg_replace('/(.*)plugins\/(.*)$/', WP_PLUGIN_DIR."/$2", __FILE__);
@@ -201,7 +191,11 @@ add_action('admin_menu', 'https_domain_alias_readme');
 
 function https_domain_alias_readme() {
 
-	add_options_page('HTTPS Domain Alias', 'HTTPS Domain Alias', 'administrator', __FILE__, 'build_readme_page', plugins_url('/images/icon.png', __FILE__));
+	if(!defined('HTTPS_DOMAIN_ALIAS')) {
+
+		add_options_page('HTTPS Domain Alias', 'HTTPS Domain Alias', 'administrator', __FILE__, 'build_readme_page', plugins_url('/images/icon.png', __FILE__));
+
+	}
 
 }
 
@@ -211,6 +205,8 @@ function build_readme_page() {
 <div class="wrap">
 
 	<h2>HTTPS Domain Alias</h2>
+
+	<div id="message" class="error"><p><?php _e('This readme page is only visible when HTTPS_DOMAIN_ALIAS is not defined in wp-config.php. You will not see this once the constant is defined.');?> </p></div>
 
 	<?php include('readme.html'); ?>
 
