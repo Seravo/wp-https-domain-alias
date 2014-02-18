@@ -8,7 +8,6 @@
  * Author URI: http://seravo.fi
  * License: GPLv3
  */
-
 /*  Copyright 2014  Otto Kekäläinen / Seravo Oy
 
     This program is free software; you can redistribute it and/or modify
@@ -24,6 +23,7 @@
     along with this program; if not, write to the Free Software
     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
+
 
 /**
  * @package HTTPS_Domain_Alias
@@ -50,7 +50,6 @@
  * @param string $status (optional, not used in this function)
  * @return string
  */
-
 function _https_domain_rewrite($url, $status = 0) {
 
   //debug: error_log("status=$status");
@@ -122,6 +121,7 @@ function _set_preview_link($url) {
     return $url;
 }
 
+
 /**
  * Debug wrapper
  *
@@ -142,6 +142,7 @@ function _debug_rewrite($url, $path=false, $plugin=false, $extra=false) {
   error_log("return=$url");
   return $url;
 }
+
 
 /*
  * Register filters only if HTTPS_DOMAIN_ALIAS defined
@@ -168,6 +169,15 @@ if (defined('HTTPS_DOMAIN_ALIAS')) {
 
 }
 
+/*
+ * Make sure this plugin loads as first so that the filters will be applied
+ * to all plugins before they fetch or define any URLs.
+ *
+ * This function will only take effect at the time when some plugin is activated,
+ * does not apply directly for old installs and in general is brittle to brake,
+ * as something else might edit the plugin list in the database options table
+ * and thus lower the priorty for this plugin.
+ */
 function https_domain_alias_must_be_first_plugin() {
   // ensure path to this file is via main wp plugin path
   $wp_path_to_this_file = preg_replace('/(.*)plugins\/(.*)$/', WP_PLUGIN_DIR."/$2", __FILE__);
