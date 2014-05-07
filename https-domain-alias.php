@@ -4,7 +4,7 @@
  * Plugin URI: https://github.com/Seravo/wp-https-domain-alias
  * Description: Enable your site to have a different domains for HTTP and HTTPS. Useful e.g. if you have a wildcard SSL/TLS certificate for server but not for each site.
  * Version: 0.95
- * Author: Otto Kekäläinen, Antti Kuosmanen / Seravo Oy
+ * Author: Otto Kekäläinen (Seravo Oy) and Antti Kuosmanen (Seravo Oy)
  * Author URI: http://seravo.fi
  * License: GPLv3
  */
@@ -54,6 +54,9 @@ function _https_domain_rewrite($url, $status = 0) {
 
   //debug: error_log("status=$status");
   //debug: error_log("url-i=$url");
+
+  // TODO: second parameter if ofen scheme,
+  //       see http://codex.wordpress.org/Function_Reference/site_url#Parameters
 
   // If scheme not https, don't rewrite.
   if (substr($url, 0, 5) == 'https') {
@@ -155,12 +158,14 @@ if (defined('HTTPS_DOMAIN_ALIAS')) {
   add_filter('logout_url', '_https_domain_rewrite');
   add_filter('admin_url', '_https_domain_rewrite');
 
+  // These might have scheme=https/login_post/admin etc..
+  add_filter('site_url', '_https_domain_rewrite');
+  add_filter('home_url', '_https_domain_rewrite');
+
   // These are only needed if site is already accessed via https
   if (is_ssl()) {
     add_filter('plugins_url', '_https_domain_rewrite');
     add_filter('content_url', '_https_domain_rewrite');
-    add_filter('site_url', '_https_domain_rewrite');
-    add_filter('home_url', '_https_domain_rewrite');
     add_filter('preview_post_link', '_set_preview_link');
   }
 } else {

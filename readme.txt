@@ -28,7 +28,7 @@ Source available at https://github.com/Seravo/wp-https-domain-alias
 
 == Installation ==
 
-1. Upload `https-domain-alias.php` to the `/wp-content/plugins/` directory.
+1. Upload plugin to the `/wp-content/plugins/` directory.
 2. Activate the plugin through the "Plugins" menu in WordPress.
 3. Make sure the `wp-config.php` defines the needed constants.
 
@@ -105,8 +105,8 @@ Note that complete commit log is available at https://github.com/Seravo/wp-https
 
 == Upgrade Notice ==
 
-= 0.1 =
-* Initial release.
+=== 0.9 ===
+* All OK!
 
 (This readme.txt is made to satisfy official WordPress plugin directory requirements.)
 
