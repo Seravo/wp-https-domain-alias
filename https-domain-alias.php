@@ -122,14 +122,14 @@ function _debug_rewrite($url, $path=false, $plugin=false, $extra=false) {
 if (defined('HTTPS_DOMAIN_ALIAS')) {
 
   // A redirect or link to https may happen from pages served via http
-  add_filter('wp_redirect', '_https_domain_rewrite');
   add_filter('login_url', '_https_domain_rewrite');
   add_filter('logout_url', '_https_domain_rewrite');
   add_filter('admin_url', '_https_domain_rewrite');
-  
+
   // These are only needed if site is already accessed via https or if the user is logged in
   function _ssl_redirects() {
   	if(!function_exists('is_user_logged_in') || is_user_logged_in()) {
+  	  add_filter('wp_redirect', '_https_domain_rewrite');
 	  add_filter('plugins_url', '_https_domain_rewrite');
       add_filter('content_url', '_https_domain_rewrite');
       add_filter('site_url', '_https_domain_rewrite');
