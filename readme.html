@@ -1,9 +1,9 @@
 <h3>Installation</h3>
 
 <ol>
-	<li>Upload `https-domain-alias.php` to the `/wp-content/plugins/` directory.</li>
-	<li>Activate the plugin through the "Plugins" menu in WordPress.</li>
-	<li>Make sure the `wp-config.php` defines the needed constants.</li>
+  <li>Upload `https-domain-alias.php` to the `/wp-content/plugins/` directory.</li>
+  <li>Activate the plugin through the "Plugins" menu in WordPress.</li>
+  <li>Make sure the `wp-config.php` defines the needed constants.</li>
 </ol>
 
 <p>Example:<br>
@@ -18,12 +18,12 @@
 the <a href="http://wordpress.org/plugins/wordpress-mu-domain-mapping/" target="_blank">WordPress MU Domain Mapping plugin</a>.</p>
 
 <p>Possible values of <code>$location</code> when calling this function
-	<ul>
-		<li>http://example.com</li>
-		<li>https://example.com &larr; the case where https fails and we want to avoid</li>
-		<li>http://example.example.org</li>
-		<li>https://example.example.org &larr; the case where https works</li>
-	</ul>
+  <ul>
+    <li>http://example.com</li>
+    <li>https://example.com &larr; the case where https fails and we want to avoid</li>
+    <li>http://example.example.org</li>
+    <li>https://example.example.org &larr; the case where https works</li>
+  </ul>
 </p>
 
 <h3>Frequently Asked Questions<h3>
@@ -45,7 +45,7 @@ Note that defining <code>FORCE_SSL_LOGIN</code> is not needed.
 <h3>Screenshots</h3>
 
 <p>Example when on <strong>coss.fi</strong> <code>HTTPS_DOMAIN_ALIAS</code> is <strong>coss.seravo.fi</strong>:<br><br>
-	<code>$ curl -I http://coss.fi/wp-admin/</code><br>
-	<code>HTTP/1.1 302 Found</code><br>
-	<code>Location: https://coss.seravo.fi/wp-admin/</code>
+  <code>$ curl -I http://coss.fi/wp-admin/</code><br>
+  <code>HTTP/1.1 302 Found</code><br>
+  <code>Location: https://coss.seravo.fi/wp-admin/</code>
 </p>
