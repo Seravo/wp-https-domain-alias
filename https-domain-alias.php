@@ -63,7 +63,7 @@ function _https_domain_rewrite($url, $status = 0) {
 
   // Rewrite only if the request is https, or the user is logged in
   // to preserve cookie integrity
-  if (substr($url, 0, 5) == 'https' || ( function_exists('is_user_logged_in') && is_user_logged_in() )) {
+  if (substr($url, 0, 5) == 'https' || ( function_exists('is_user_logged_in') && is_user_logged_in() && !(defined('DISABLE_FRONTEND_SSL') && DISABLE_FRONTEND_SSL) ) ) {
 
       // Assume domain is always same for all calls to this function
       // during same request and thus define some variables as static.
