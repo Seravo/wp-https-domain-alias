@@ -149,6 +149,9 @@ if (defined('HTTPS_DOMAIN_ALIAS')) {
   add_filter('wp_redirect', '_https_domain_rewrite');
   add_filter('plugins_url', '_https_domain_rewrite');
   add_filter('content_url', '_https_domain_rewrite');
+  add_filter('theme_mod_header_image', '_https_domain_rewrite');
+  add_filter('wp_get_attachment_url', '_https_domain_rewrite');
+  add_filter('wp_get_attachment_thumb_url', '_https_domain_rewrite');
   add_filter('site_url', '_https_domain_rewrite');
   add_filter('home_url', '_home_url_rewrite');
 
