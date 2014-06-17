@@ -186,6 +186,26 @@ function https_domain_alias_must_be_first_plugin() {
   }
 }
 
+/*
+ * A function for determining if we're currently on a login page
+ */
+function is_login_page() {
+  return in_array($GLOBALS['pagenow'], array('wp-login.php', 'wp-register.php'));
+}
+
+
+/*
+ * Redirects non logged in visitors away from the visible domain alias front
+ * end. This also makes sure search engines don't index the domain alias but
+ * rather the actual canonical site thus improving site SEO.
+ */
+add_action('wp', '_https_domain_alias_redirect_visitors');
+function _https_domain_alias_redirect_visitors() {
+  if(!strpos(get_option('HOME'), $_SERVER['HTTP_HOST']) && !is_user_logged_in() && !is_login_page()) {
+    wp_redirect(get_option('HOME') . $_SERVER['REQUEST_URI'], 301);
+  }
+}
+
 
 /**
  * Create a readme page in the settings menu
