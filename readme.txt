@@ -49,18 +49,17 @@ Possible values of $location when calling this function
  - http://example.example.org
  - https://example.example.org <- the case where https works
 
-
 == Frequently Asked Questions ==
 
-=== Does this work for WordPress Network? ===
+= Does this work for WordPress Network? =
 
 Yes, since version 0.4.
 
-=== Where is the UI? ===
+= Where is the UI? =
 
 This plugin has no visible UI, the magic happens automatically is the plugin is active.
 
-=== What does FORCE_SSL_ADMIN do? ===
+= What does FORCE_SSL_ADMIN do? =
 
 See http://codex.wordpress.org/Administration_Over_SSL
 
@@ -78,38 +77,38 @@ Example when on **coss.fi** HTTPS_DOMAIN_ALIAS is **coss.seravo.fi**:
 
 Note that complete commit log is available at https://github.com/Seravo/wp-https-domain-alias/commits/master
 
-=== 1.0 ===
+= 1.0 =
 * Mature enough for official 1.0 release
 
-=== 0.8 ===
+= 0.9 =
+* All OK!
+
+= 0.8 =
 * Fix home_url ininite loop and thus enable rewrites for it too
 
-=== 0.7 ===
+= 0.7 =
 * Added debug wrapper and made sure thi plugin is load first of all plugins.
 
-=== 0.6 ===
+= 0.6 =
 * Bugfixes for preview mode and non-admin https pages.
 
-=== 0.5 ===
+= 0.5 =
 * Updated readme.txt
 
-=== 0.4 ===
+= 0.4 =
 * Enhanced to also support WordPress Network installations.
 * Refactored code to be robust in all known situations.
 
-=== 0.3 ===
+= 0.3 =
 * Merged pull request on http preview
 
-=== 0.2 ===
+= 0.2 =
 * Improved readme.txt. Log error if the needed constats don't exist.
 
-=== 0.1 ===
+= 0.1 =
 * Initial release.
 
 == Upgrade Notice ==
 
-=== 0.9 ===
-* All OK!
-
-(This readme.txt is made to satisfy official WordPress plugin directory requirements.)
-
+= 1.0 =
+Please upgrade HTTPS Domain Alias to the newest version. It won't break anything. Promise!
