@@ -60,6 +60,12 @@ function _https_domain_rewrite($url, $status = 0) {
   // TODO: second parameter if ofen scheme,
   //       see http://codex.wordpress.org/Function_Reference/site_url#Parameters
 
+  if(strpos($url, 'admin-ajax.php')) {
+    // Always return relative urls for admin-ajax, since it's always called
+    // from within the already resolved domain
+    $url = parse_url($url);
+    return $url['path'] . $url['query'];
+  }
 
   // Rewrite only if the request is https, or the user is logged in
   // to preserve cookie integrity
