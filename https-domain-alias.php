@@ -128,7 +128,7 @@ function _debug_rewrite($url, $path=false, $plugin=false, $extra=false) {
 function _home_url_rewrite($url) {
 
   //don't rewrite urls for polylang settings
-  if($_GET['page'] == 'mlang') {
+  if(isset($_GET['page']) && $_GET['page'] == 'mlang') {
     return $url;
   }
 
