@@ -57,7 +57,7 @@ Yes, since version 0.4.
 
 = Where is the UI? =
 
-This plugin has no visible UI, the magic happens automatically is the plugin is active.
+This plugin has no visible UI, the magic happens automatically if the plugin is active.
 
 = What does FORCE_SSL_ADMIN do? =
 
@@ -84,10 +84,10 @@ Note that complete commit log is available at https://github.com/Seravo/wp-https
 * All OK!
 
 = 0.8 =
-* Fix home_url ininite loop and thus enable rewrites for it too
+* Fix home_url infinite loop and thus enable rewrites for it too
 
 = 0.7 =
-* Added debug wrapper and made sure thi plugin is load first of all plugins.
+* Added debug wrapper and made sure this plugin is load first of all plugins.
 
 = 0.6 =
 * Bugfixes for preview mode and non-admin https pages.
@@ -103,7 +103,7 @@ Note that complete commit log is available at https://github.com/Seravo/wp-https
 * Merged pull request on http preview
 
 = 0.2 =
-* Improved readme.txt. Log error if the needed constats don't exist.
+* Improved readme.txt. Log error if the needed constants don't exist.
 
 = 0.1 =
 * Initial release.
