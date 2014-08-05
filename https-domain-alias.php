@@ -150,7 +150,7 @@ if ( defined( 'HTTPS_DOMAIN_ALIAS' ) ) {
 	add_filter( 'wp_get_attachment_url',       'htsda_https_domain_rewrite' );
 	add_filter( 'wp_get_attachment_thumb_url', 'htsda_https_domain_rewrite' );
 	add_filter( 'site_url',                    'htsda_https_domain_rewrite' );
-	add_filter( 'home_url',                    'htsda_https_domain_rewrite' );
+	add_filter( 'home_url',                    'htsda_home_url_rewrite'     );
 
 } else {
 	error_log( 'Constant HTTPS_DOMAIN_ALIAS is not defined' );
