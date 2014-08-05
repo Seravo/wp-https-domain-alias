@@ -52,7 +52,7 @@
  * @param string $status (optional, not used in this function)
  * @return string
  */
-function _https_domain_rewrite( $url, $status = 0 ) {
+function htsda_https_domain_rewrite( $url, $status = 0 ) {
 
 	//debug: error_log("status=$status");
 	//debug: error_log("url-i=$url");
@@ -114,9 +114,9 @@ function _https_domain_rewrite( $url, $status = 0 ) {
  * @param string $plugins
  * @return string $url
  */
-function _debug_rewrite( $url, $path=false, $plugin = false, $extra = false ) {
+function htsda_debug_rewrite( $url, $path=false, $plugin = false, $extra = false ) {
 	error_log( "url=$url" );
-	$url = _https_domain_rewrite( $url );
+	$url = htsda_https_domain_rewrite( $url );
 	error_log( "return=$url" );
 	return $url;
 }
@@ -124,14 +124,14 @@ function _debug_rewrite( $url, $path=false, $plugin = false, $extra = false ) {
 /*
  * Includes a patch for Polylang Language plugin, which redefines home_url in the back-end
  */
-function _home_url_rewrite( $url ) {
+function htsda_home_url_rewrite( $url ) {
 
 	//don't rewrite urls for polylang settings
 	if ( $_GET['page'] == 'mlang' ) {
 		return $url;
 	}
 
-	$url = _https_domain_rewrite( $url );
+	$url = htsda_https_domain_rewrite( $url );
 	return $url;
 }
 
@@ -140,17 +140,17 @@ function _home_url_rewrite( $url ) {
  */
 if ( defined( 'HTTPS_DOMAIN_ALIAS' ) ) {
 	// A redirect or link to https may happen from pages served via http
-	add_filter( 'login_url',                   '_https_domain_rewrite' );
-	add_filter( 'logout_url',                  '_https_domain_rewrite' );
-	add_filter( 'admin_url',                   '_https_domain_rewrite' );
-	add_filter( 'wp_redirect',                 '_https_domain_rewrite' );
-	add_filter( 'plugins_url',                 '_https_domain_rewrite' );
-	add_filter( 'content_url',                 '_https_domain_rewrite' );
-	add_filter( 'theme_mod_header_image',      '_https_domain_rewrite' );
-	add_filter( 'wp_get_attachment_url',       '_https_domain_rewrite' );
-	add_filter( 'wp_get_attachment_thumb_url', '_https_domain_rewrite' );
-	add_filter( 'site_url',                    '_https_domain_rewrite' );
-	add_filter( 'home_url',                    '_https_domain_rewrite' );
+	add_filter( 'login_url',                   'htsda_https_domain_rewrite' );
+	add_filter( 'logout_url',                  'htsda_https_domain_rewrite' );
+	add_filter( 'admin_url',                   'htsda_https_domain_rewrite' );
+	add_filter( 'wp_redirect',                 'htsda_https_domain_rewrite' );
+	add_filter( 'plugins_url',                 'htsda_https_domain_rewrite' );
+	add_filter( 'content_url',                 'htsda_https_domain_rewrite' );
+	add_filter( 'theme_mod_header_image',      'htsda_https_domain_rewrite' );
+	add_filter( 'wp_get_attachment_url',       'htsda_https_domain_rewrite' );
+	add_filter( 'wp_get_attachment_thumb_url', 'htsda_https_domain_rewrite' );
+	add_filter( 'site_url',                    'htsda_https_domain_rewrite' );
+	add_filter( 'home_url',                    'htsda_https_domain_rewrite' );
 
 } else {
 	error_log( 'Constant HTTPS_DOMAIN_ALIAS is not defined' );
@@ -165,8 +165,8 @@ if ( defined( 'HTTPS_DOMAIN_ALIAS' ) ) {
  * as something else might edit the plugin list in the database options table
  * and thus lower the priorty for this plugin.
  */
-add_action( 'activated_plugin', 'https_domain_alias_must_be_first_plugin' );
-function https_domain_alias_must_be_first_plugin() {
+add_action( 'activated_plugin', 'htsda_https_domain_alias_must_be_first_plugin' );
+function htsda_https_domain_alias_must_be_first_plugin() {
 	// ensure path to this file is via main wp plugin path
 	$wp_path_to_this_file = preg_replace( '/(.*)plugins\/(.*)$/', WP_PLUGIN_DIR."/$2", __FILE__ );
 	$this_plugin = plugin_basename( trim( $wp_path_to_this_file ) );
@@ -193,8 +193,8 @@ function is_login_page() {
  * end. This also makes sure search engines don't index the domain alias but
  * rather the actual canonical site thus improving site SEO.
  */
-add_action( 'wp', '_https_domain_alias_redirect_visitors' );
-function _https_domain_alias_redirect_visitors() {
+add_action( 'wp', 'htsda_https_domain_alias_redirect_visitors' );
+function htsda_https_domain_alias_redirect_visitors() {
 	if ( ! strpos( get_option( 'HOME' ), $_SERVER['HTTP_HOST'] ) && ! is_user_logged_in() && ! is_login_page() ) {
 		wp_redirect(get_option( 'HOME' ) . $_SERVER['REQUEST_URI'], 301 );
 	}
@@ -203,15 +203,15 @@ function _https_domain_alias_redirect_visitors() {
 /**
  * Create a readme page in the settings menu
  */
-add_action( 'admin_menu', '_https_domain_alias_readme' );
-function _https_domain_alias_readme() {
+add_action( 'admin_menu', 'htsda_https_domain_alias_readme' );
+function htsda_https_domain_alias_readme() {
 	//Readme is only visible, when HTTPS_DOMAIN_ALIAS is not defined
 	if ( ! defined( 'HTTPS_DOMAIN_ALIAS' ) ) {
-		add_options_page( 'HTTPS Domain Alias', 'HTTPS Domain Alias', 'administrator', __FILE__, '_build_readme_page', plugins_url( '/images/icon.png', __FILE__ ) );
+		add_options_page( 'HTTPS Domain Alias', 'HTTPS Domain Alias', 'administrator', __FILE__, 'htsda_build_readme_page', plugins_url( '/images/icon.png', __FILE__ ) );
 	}
 }
 
-function _build_readme_page() { ?>
+function htsda_build_readme_page() { ?>
 	<div class="wrap">
 		<h2>HTTPS Domain Alias</h2>
 		<div id="message" class="error">
