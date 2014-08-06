@@ -199,7 +199,7 @@ function htsda_https_domain_alias_redirect_visitors() {
 	// check if visitor is currently in a domain alias location
 	$is_on_domain_alias = strpos( get_option( 'HOME' ), $_SERVER['HTTP_HOST'] );
 
-	if ( 	! $is_on_domain_alias && 
+	if (	! $is_on_domain_alias && 
 			! is_user_logged_in() && 
 			! is_login_page() && 
 			! is_multisite() )  {
