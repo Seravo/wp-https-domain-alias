@@ -127,7 +127,7 @@ function htsda_debug_rewrite( $url, $path=false, $plugin = false, $extra = false
 function htsda_home_url_rewrite( $url ) {
 
 	//don't rewrite urls for polylang settings
-	if ( $_GET['page'] == 'mlang' ) {
+	if ( isset($_GET['page']) && $_GET['page'] == 'mlang' ) {
 		return $url;
 	}
 
