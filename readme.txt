@@ -2,9 +2,9 @@
 Contributors: ottok, Zuige
 Tags: https, ssl, tls, alias, domain, seravo
 Donate link: http://seravo.fi/
-Requires at least: 3.8
+Requires at least: 3.9
 Tested up to: 4.0
-Stable tag: 1.0.4
+Stable tag: 1.1
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -76,6 +76,9 @@ Example when on **coss.fi** HTTPS_DOMAIN_ALIAS is **coss.seravo.fi**:
 == Changelog ==
 
 Note that complete commit log is available at https://github.com/Seravo/wp-https-domain-alias/commits/master
+
+= 1.1 =
+* Adds rewrite capabilities for all domains in multisite
 
 = 1.0 =
 * Mature enough for official 1.0 release
