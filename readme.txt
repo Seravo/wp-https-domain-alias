@@ -1,10 +1,10 @@
 === HTTPS domain alias ===
 Contributors: ottok, Zuige
-Tags: https, ssl, tls, alias, domain
+Tags: https, ssl, tls, alias, domain, seravo
 Donate link: http://seravo.fi/
 Requires at least: 3.8
-Tested up to: 3.9.1
-Stable tag: 1.0.1
+Tested up to: 4.0
+Stable tag: 1.0.4
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -57,7 +57,7 @@ Yes, since version 0.4.
 
 = Where is the UI? =
 
-This plugin has no visible UI, the magic happens automatically is the plugin is active.
+This plugin has no visible UI, the magic happens automatically if the plugin is active.
 
 = What does FORCE_SSL_ADMIN do? =
 
@@ -84,10 +84,10 @@ Note that complete commit log is available at https://github.com/Seravo/wp-https
 * All OK!
 
 = 0.8 =
-* Fix home_url ininite loop and thus enable rewrites for it too
+* Fix home_url infinite loop and thus enable rewrites for it too
 
 = 0.7 =
-* Added debug wrapper and made sure thi plugin is load first of all plugins.
+* Added debug wrapper and made sure this plugin is load first of all plugins.
 
 = 0.6 =
 * Bugfixes for preview mode and non-admin https pages.
@@ -103,12 +103,19 @@ Note that complete commit log is available at https://github.com/Seravo/wp-https
 * Merged pull request on http preview
 
 = 0.2 =
-* Improved readme.txt. Log error if the needed constats don't exist.
+* Improved readme.txt. Log error if the needed constants don't exist.
 
 = 0.1 =
 * Initial release.
 
 == Upgrade Notice ==
 
+<<<<<<< HEAD
+=== 0.9 ===
+* All OK!
+
+(This readme.txt is made to satisfy official WordPress plugin directory requirements.)
+=======
 = 1.0 =
 Please upgrade HTTPS Domain Alias to the newest version. It won't break anything. Promise!
+>>>>>>> 9f94cf4690dfdf168cc9e0244318c0f5438da1ac
