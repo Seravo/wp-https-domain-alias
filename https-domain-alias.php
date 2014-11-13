@@ -3,7 +3,7 @@
  * Plugin Name: HTTPS domain alias
  * Plugin URI: https://github.com/Seravo/wp-https-domain-alias
  * Description: Enable your site to have a different domains for HTTP and HTTPS. Useful e.g. if you have a wildcard SSL/TLS certificate for server but not for each site.
- * Version: 1.0.4
+ * Version: 1.1
  * Author: Seravo Oy
  * Author URI: http://seravo.fi
  * License: GPLv3
@@ -105,6 +105,67 @@ function htsda_https_domain_rewrite( $url, $status = 0 ) {
 
 
 /**
+ * Same as above, but handles all domains in a multisite
+ */
+function htsda_mu_https_domain_rewrite( $url, $status = 0 ) {
+
+	// Rewrite only if the request is https, or the user is logged in
+	// to preserve cookie integrity
+	if ( substr( $url, 0, 5 ) == 'https'
+		|| ( function_exists( 'is_user_logged_in' ) && is_user_logged_in()
+			&& ! ( defined( 'DISABLE_FRONTEND_SSL' ) && DISABLE_FRONTEND_SSL ) ) ) {
+
+      // these won't change during the request  
+      static $domains;
+
+      if ( !isset( $domains ) ) {
+        $blogs = wp_get_sites(); // get info from wp_blogs table
+        $domains = array(); // map the domains here
+        $domains[] = parse_url( get_site_url( 1 ), PHP_URL_HOST ); // main site home
+
+        foreach ( $blogs as $blog ) {
+          $domains[] = $blog['domain'];
+        }
+
+        // dedupe domains
+        $domains = array_unique( $domains );
+
+      }
+
+      foreach ($domains as $domain) {
+        if ( strpos( $url, $domain ) ) {
+          // url is part of the network!
+          
+          if ( substr( HTTPS_DOMAIN_ALIAS, -strlen( $domain ) ) == $domain ) {
+            // Special case: $domainAlias ends with $domain,
+            // which is possible in WP Network when requesting
+            // the main site, don't rewrite urls as a https
+            // certificate for sure exists for direct domain.
+            // e.g. domain seravo.fi, domain alias *.seravo.fi
+            $domainAlias = $domain;
+          } else if ( substr( HTTPS_DOMAIN_ALIAS, 0, 1 ) == '*' ) {
+            $domainBase = substr( $domain, 0, strpos( $domain, '.' ) );
+            $domainAliasBase = substr( HTTPS_DOMAIN_ALIAS, 1 );
+            $domainAlias = $domainBase . $domainAliasBase;
+          } else {
+            $domainAlias = HTTPS_DOMAIN_ALIAS;
+          }
+
+          // If $location does not include simple https domain alias, rewrite it.
+          if ( $domain != $domainAlias ) {
+            $url = str_ireplace( $domain, $domainAlias, $url );
+            $url = str_replace( 'http://', 'https://', $url );
+          }
+
+          // rewrite done, no need to keep looping
+          break;
+        }
+      }
+	}
+	return $url;
+}
+
+/**
  * Debug wrapper
  *
  *
@@ -139,17 +200,19 @@ function htsda_home_url_rewrite( $url ) {
  */
 if ( defined( 'HTTPS_DOMAIN_ALIAS' ) ) {
 	// A redirect or link to https may happen from pages served via http
-	add_filter( 'login_url',                   'htsda_https_domain_rewrite' );
-	add_filter( 'logout_url',                  'htsda_https_domain_rewrite' );
-	add_filter( 'admin_url',                   'htsda_https_domain_rewrite' );
-	add_filter( 'wp_redirect',                 'htsda_https_domain_rewrite' );
-	add_filter( 'plugins_url',                 'htsda_https_domain_rewrite' );
-	add_filter( 'content_url',                 'htsda_https_domain_rewrite' );
-	add_filter( 'theme_mod_header_image',      'htsda_https_domain_rewrite' );
-	add_filter( 'wp_get_attachment_url',       'htsda_https_domain_rewrite' );
-	add_filter( 'wp_get_attachment_thumb_url', 'htsda_https_domain_rewrite' );
-	add_filter( 'site_url',                    'htsda_https_domain_rewrite' );
-	add_filter( 'home_url',                    'htsda_home_url_rewrite'     );
+  $domain_filter = is_multisite() ? 'htsda_mu_https_domain_rewrite' : 'htsda_https_domain_rewrite';
+
+	add_filter( 'login_url',                   $domain_filter );
+	add_filter( 'logout_url',                  $domain_filter );
+	add_filter( 'admin_url',                   $domain_filter );
+	add_filter( 'wp_redirect',                 $domain_filter );
+	add_filter( 'plugins_url',                 $domain_filter );
+	add_filter( 'content_url',                 $domain_filter );
+	add_filter( 'theme_mod_header_image',      $domain_filter );
+	add_filter( 'wp_get_attachment_url',       $domain_filter );
+	add_filter( 'wp_get_attachment_thumb_url', $domain_filter );
+	add_filter( 'site_url',                    $domain_filter );
+	add_filter( 'home_url',                    'htsda_home_url_rewrite' );
 
 } else {
 	error_log( 'Constant HTTPS_DOMAIN_ALIAS is not defined' );
