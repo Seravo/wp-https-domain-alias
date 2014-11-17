@@ -113,12 +113,3 @@ Note that complete commit log is available at https://github.com/Seravo/wp-https
 
 == Upgrade Notice ==
 
-<<<<<<< HEAD
-=== 0.9 ===
-* All OK!
-
-(This readme.txt is made to satisfy official WordPress plugin directory requirements.)
-=======
-= 1.0 =
-Please upgrade HTTPS Domain Alias to the newest version. It won't break anything. Promise!
->>>>>>> 9f94cf4690dfdf168cc9e0244318c0f5438da1ac
