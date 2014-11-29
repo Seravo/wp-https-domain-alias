@@ -66,6 +66,15 @@ function htsda_https_domain_rewrite( $url, $status = 0 ) {
     || ( function_exists( 'is_user_logged_in' ) && is_user_logged_in()
       && ! ( defined( 'DISABLE_FRONTEND_SSL' ) && DISABLE_FRONTEND_SSL ) ) ) {
 
+      if ( ! HTTPS_DOMAIN_ALIAS_SUBDOMAIN && 0 === stripos ( $url , '/' ) ) {
+        $blog_details = get_blog_details();
+        $path = '/' .  rtrim( $blog_details->domain . $blog_details->path, '/' );
+        if ( 0 !== stripos ( $url , $path ) ) {
+          $url = $path. $url;
+        }
+        return $url;
+      }
+
       // Assume domain is always same for all calls to this function
       // during same request and thus define some variables as static.
       static $domain;
@@ -95,7 +104,14 @@ function htsda_https_domain_rewrite( $url, $status = 0 ) {
 
       // If $location does not include simple https domain alias, rewrite it.
       if ( $domain != $domainAlias ) {
-        $url = str_ireplace( $domain, $domainAlias, $url );
+        if ( HTTPS_DOMAIN_ALIAS_SUBDOMAIN ) {
+          $url = str_ireplace( $domain, $domainAlias, $url );
+        } else {
+          $aliasPos = stripos ( $url , $domainAlias );
+          if ( false === $aliasPos || 8 > $aliasPos ) {
+            $url = str_ireplace( '://' . $domain, '://' . $domainAlias . '/' . $domain, $url );
+          }
+        }
         $url = str_replace( 'http://', 'https://', $url );
         //debug: error_log("url-o=$url");
       }
@@ -114,6 +130,15 @@ function htsda_mu_https_domain_rewrite( $url, $status = 0 ) {
   if ( substr( $url, 0, 5 ) == 'https'
     || ( function_exists( 'is_user_logged_in' ) && is_user_logged_in()
       && ! ( defined( 'DISABLE_FRONTEND_SSL' ) && DISABLE_FRONTEND_SSL ) ) ) {
+
+      if ( ! HTTPS_DOMAIN_ALIAS_SUBDOMAIN && 0 === stripos ( $url , '/' ) ) {
+        $blog_details = get_blog_details();
+        $path = '/' .  rtrim( $blog_details->domain . $blog_details->path, '/' );
+        if ( 0 !== stripos ( $url , $path ) ) {
+          $url = $path. $url;
+        }
+        return $url;
+      }
 
       // these won't change during the request  
       static $domains;
@@ -153,7 +178,14 @@ function htsda_mu_https_domain_rewrite( $url, $status = 0 ) {
 
           // If $location does not include simple https domain alias, rewrite it.
           if ( $domain != $domainAlias ) {
-            $url = str_ireplace( $domain, $domainAlias, $url );
+            if ( HTTPS_DOMAIN_ALIAS_SUBDOMAIN ) {
+              $url = str_ireplace( $domain, $domainAlias, $url );
+            } else {
+              $aliasPos = stripos ( $url , $domainAlias );
+              if ( false === $aliasPos || 8 > $aliasPos ) {
+                $url = str_ireplace( '://' . $domain, '://' . $domainAlias . '/' . $domain, $url );
+              }
+            }
             $url = str_replace( 'http://', 'https://', $url );
           }
 
@@ -191,7 +223,8 @@ function htsda_home_url_rewrite( $url ) {
     return $url;
   }
 
-  $url = htsda_https_domain_rewrite( $url );
+  $domain_filter = is_multisite() ? 'htsda_mu_https_domain_rewrite' : 'htsda_https_domain_rewrite';
+  $url = $domain_filter( $url );
   return $url;
 }
 
@@ -199,20 +232,35 @@ function htsda_home_url_rewrite( $url ) {
  * Register filters only if HTTPS_DOMAIN_ALIAS defined
  */
 if ( defined( 'HTTPS_DOMAIN_ALIAS' ) ) {
+
+  // Set default to use subdomains, otherwise used subdirectories.
+  if ( ! defined( 'HTTPS_DOMAIN_ALIAS_SUBDOMAIN' ) ) {
+    define( 'HTTPS_DOMAIN_ALIAS_SUBDOMAIN', true );
+  }
+
+  // Set default to rewrite attachements urls by default.
+  if ( ! defined( 'HTTPS_DOMAIN_ALIAS_ATTACHEMENT' ) ) {
+    define( 'HTTPS_DOMAIN_ALIAS_ATTACHEMENT', true );
+  }
+
   // A redirect or link to https may happen from pages served via http
   $domain_filter = is_multisite() ? 'htsda_mu_https_domain_rewrite' : 'htsda_https_domain_rewrite';
 
   add_filter( 'login_url',                   $domain_filter );
   add_filter( 'logout_url',                  $domain_filter );
   add_filter( 'admin_url',                   $domain_filter );
+  add_filter( 'network_admin_url',           $domain_filter );
   add_filter( 'wp_redirect',                 $domain_filter );
   add_filter( 'plugins_url',                 $domain_filter );
   add_filter( 'content_url',                 $domain_filter );
   add_filter( 'theme_mod_header_image',      $domain_filter );
-  add_filter( 'wp_get_attachment_url',       $domain_filter );
-  add_filter( 'wp_get_attachment_thumb_url', $domain_filter );
   add_filter( 'site_url',                    $domain_filter );
   add_filter( 'home_url',                    'htsda_home_url_rewrite' );
+
+  if ( HTTPS_DOMAIN_ALIAS_ATTACHEMENT ) {
+    add_filter( 'wp_get_attachment_url',       $domain_filter );
+    add_filter( 'wp_get_attachment_thumb_url', $domain_filter );
+  }
 
 } else {
   error_log( 'Constant HTTPS_DOMAIN_ALIAS is not defined' );
