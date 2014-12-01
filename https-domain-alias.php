@@ -3,7 +3,7 @@
  * Plugin Name: HTTPS domain alias
  * Plugin URI: https://github.com/Seravo/wp-https-domain-alias
  * Description: Enable your site to have a different domains for HTTP and HTTPS. Useful e.g. if you have a wildcard SSL/TLS certificate for server but not for each site.
- * Version: 1.1
+ * Version: 1.2
  * Author: Seravo Oy
  * Author URI: http://seravo.fi
  * License: GPLv3
@@ -200,6 +200,50 @@ function htsda_home_url_rewrite( $url ) {
   return $url;
 }
 
+/**
+ * Additional functionality to make all links relative
+ *
+ * This helps keep the front end clean of any HTTPS domain alias links
+ *
+ * Thanks to @chernjie for the idea!
+ */
+
+/*
+ * This converts any link to slash-relative
+ *
+ * NOTE: this applies to external links as well, so be careful with this!
+ */
+function htsda_root_relative_url($url, $html) {
+  // If urls already start from root, just return it
+  if ($url[0] == "/") return $html;
+
+  $p = parse_url($url);
+  $root = $p['scheme'] . "://" . $p['host'];
+  $html = str_ireplace($root, '', $html);
+
+  return $html;
+}
+
+/*
+ * Media gallery images should be handled with relative urls
+ */
+function htsda_root_relative_image_urls($html, $id, $caption, $title, $align, $url, $size, $alt) {
+  return htsda_root_relative_url($url, $html);
+}
+function htsda_root_relative_media_urls($html, $id, $att) {
+  return htsda_root_relative_url($att['url'], $html);
+}
+
+/*
+ * This adds a small javascript fix for the TinyMCE link adder dialog
+ */
+function htsda_link_adder_fix($hook) {
+  if ( 'post.php' === $hook || 'post-new.php' === $hook) {
+    // we only need to use this fix in post.php
+    wp_enqueue_script( 'link-relative', plugin_dir_url( __FILE__ ) . 'link-relative.js' );
+  }
+}
+
 /*
  * Register filters only if HTTPS_DOMAIN_ALIAS defined
  */
@@ -218,6 +262,11 @@ if ( defined( 'HTTPS_DOMAIN_ALIAS' ) ) {
   add_filter( 'wp_get_attachment_thumb_url', $domain_filter );
   add_filter( 'site_url',                    $domain_filter );
   add_filter( 'home_url',                    'htsda_home_url_rewrite' );
+
+  // Force relative urls for links created in the wp-admin 
+  add_filter( 'media_send_to_editor', 'htsda_root_relative_media_urls', 10, 3 );
+  add_filter( 'image_send_to_editor', 'htsda_root_relative_image_urls', 10, 9 );
+  add_action( 'admin_enqueue_scripts', 'htsda_link_adder_fix' ); 
 
 } else {
   error_log( 'Constant HTTPS_DOMAIN_ALIAS is not defined' );
@@ -285,6 +334,9 @@ function htsda_https_domain_alias_readme() {
   }
 }
 
+/*
+ * Display the readme page
+ */
 function htsda_build_readme_page() { ?>
   <div class="wrap">
     <h2>HTTPS Domain Alias</h2>
