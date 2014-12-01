@@ -123,6 +123,11 @@ function htsda_mu_https_domain_rewrite( $url, $status = 0 ) {
         $domains = array(); // map the domains here
         $domains[] = parse_url( get_site_url( 1 ), PHP_URL_HOST ); // main site home
 
+        // special case for wpmu domain mapping plugin
+        if( function_exists('domain_mapping_siteurl') ) {
+          $domains[] = parse_url( domain_mapping_siteurl( false ), PHP_URL_HOST );
+        } 
+
         foreach ( $blogs as $blog ) {
           $domains[] = $blog['domain'];
         }
