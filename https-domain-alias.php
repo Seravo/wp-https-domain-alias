@@ -213,13 +213,13 @@ function htsda_home_url_rewrite( $url ) {
  *
  * NOTE: this applies to external links as well, so be careful with this!
  */
-function htsda_root_relative_url($url, $html) {
+function htsda_root_relative_url( $url, $html ) {
   // If urls already start from root, just return it
-  if ($url[0] == "/") return $html;
+  if ( $url[0] == "/" ) return $html;
 
-  $p = parse_url($url);
+  $p = parse_url( $url );
   $root = $p['scheme'] . "://" . $p['host'];
-  $html = str_ireplace($root, '', $html);
+  $html = str_ireplace( $root, '', $html );
 
   return $html;
 }
@@ -227,18 +227,18 @@ function htsda_root_relative_url($url, $html) {
 /*
  * Media gallery images should be handled with relative urls
  */
-function htsda_root_relative_image_urls($html, $id, $caption, $title, $align, $url, $size, $alt) {
-  return htsda_root_relative_url($url, $html);
+function htsda_root_relative_image_urls( $html, $id, $caption, $title, $align, $url, $size, $alt ) {
+  return htsda_root_relative_url( $url, $html );
 }
-function htsda_root_relative_media_urls($html, $id, $att) {
-  return htsda_root_relative_url($att['url'], $html);
+function htsda_root_relative_media_urls( $html, $id, $att ) {
+  return htsda_root_relative_url( $att['url'], $html );
 }
 
 /*
  * This adds a small javascript fix for the TinyMCE link adder dialog
  */
-function htsda_link_adder_fix($hook) {
-  if ( 'post.php' === $hook || 'post-new.php' === $hook) {
+function htsda_link_adder_fix( $hook ) {
+  if ( 'post.php' === $hook || 'post-new.php' === $hook ) {
     // we only need to use this fix in post.php
     wp_enqueue_script( 'link-relative', plugin_dir_url( __FILE__ ) . 'link-relative.js' );
   }
