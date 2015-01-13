@@ -3,7 +3,7 @@
  * Plugin Name: HTTPS domain alias
  * Plugin URI: https://github.com/Seravo/wp-https-domain-alias
  * Description: Enable your site to have a different domains for HTTP and HTTPS. Useful e.g. if you have a wildcard SSL/TLS certificate for server but not for each site.
- * Version: 1.2
+ * Version: 1.3
  * Author: Seravo Oy
  * Author URI: http://seravo.fi
  * License: GPLv3
@@ -53,9 +53,6 @@
  */
 function htsda_https_domain_rewrite( $url, $status = 0 ) {
 
-  //debug: error_log("status=$status");
-  //debug: error_log("url-i=$url");
-
   // TODO: second parameter if ofen scheme,
   //       see http://codex.wordpress.org/Function_Reference/site_url#Parameters
 
@@ -70,34 +67,21 @@ function htsda_https_domain_rewrite( $url, $status = 0 ) {
       // during same request and thus define some variables as static.
       static $domain;
       if ( ! isset( $domain ) ) {
-        $domain = parse_url( get_option( 'home' ), PHP_URL_HOST );
-        //debug: error_log("domain=$domain");
+        // $domain is current site URL without the www prefix
+        // TODO: can we just strip www? convention says yes
+        $domain = preg_replace('/^www\./i', '', parse_url( get_option( 'home' ), PHP_URL_HOST ));
       }
 
       static $domainAlias;
       if ( ! isset( $domainAlias ) ) {
-         if ( substr( HTTPS_DOMAIN_ALIAS, -strlen( $domain ) ) == $domain ) {
-          // Special case: $domainAlias ends with $domain,
-          // which is possible in WP Network when requesting
-          // the main site, don't rewrite urls as a https
-          // certificate for sure exists for direct domain.
-          // e.g. domain seravo.fi, domain alias *.seravo.fi
-          $domainAlias = $domain;
-        } else if ( substr( HTTPS_DOMAIN_ALIAS, 0, 1 ) == '*' ) {
-          $domainBase = substr( $domain, 0, strpos( $domain, '.' ) );
-          $domainAliasBase = substr( HTTPS_DOMAIN_ALIAS, 1 );
-          $domainAlias = $domainBase . $domainAliasBase;
-        } else {
-          $domainAlias = HTTPS_DOMAIN_ALIAS;
-        }
-        //debug: error_log("domainAlias=$domainAlias");
+        $domainAlias = htsda_get_domain_alias($domain);
       }
 
       // If $location does not include simple https domain alias, rewrite it.
       if ( $domain != $domainAlias ) {
         $url = str_ireplace( $domain, $domainAlias, $url );
+        $url = str_ireplace( '//www.', '//', $url); //strip www to avoid sub-sub-domain structure
         $url = str_replace( 'http://', 'https://', $url );
-        //debug: error_log("url-o=$url");
       }
   }
   return $url;
@@ -121,44 +105,36 @@ function htsda_mu_https_domain_rewrite( $url, $status = 0 ) {
       if ( !isset( $domains ) ) {
         $blogs = wp_get_sites(); // get info from wp_blogs table
         $domains = array(); // map the domains here
-        $domains[] = parse_url( get_site_url( 1 ), PHP_URL_HOST ); // main site home
+        $domains[] = preg_replace('/^www\./i', '', parse_url( get_site_url( 1 ), PHP_URL_HOST )); // main site home
 
         // special case for wpmu domain mapping plugin
         if( function_exists('domain_mapping_siteurl') ) {
-          $domains[] = parse_url( domain_mapping_siteurl( false ), PHP_URL_HOST );
+          $domains[] = preg_replace('/^www\./i', '', parse_url( domain_mapping_siteurl( false ), PHP_URL_HOST ));
         } 
 
         foreach ( $blogs as $blog ) {
-          $domains[] = $blog['domain'];
+          $domains[] = preg_replace('/^www\./i', '', $blog['domain']);
         }
 
         // dedupe domains
         $domains = array_unique( $domains );
+        
+        // order by string length so that we prefer the longest possible match
+        usort($domains, '_by_length');
 
       }
 
       foreach ($domains as $domain) {
         if ( strpos( $url, $domain ) ) {
           // url is part of the network!
-          
-          if ( substr( HTTPS_DOMAIN_ALIAS, -strlen( $domain ) ) == $domain ) {
-            // Special case: $domainAlias ends with $domain,
-            // which is possible in WP Network when requesting
-            // the main site, don't rewrite urls as a https
-            // certificate for sure exists for direct domain.
-            // e.g. domain seravo.fi, domain alias *.seravo.fi
-            $domainAlias = $domain;
-          } else if ( substr( HTTPS_DOMAIN_ALIAS, 0, 1 ) == '*' ) {
-            $domainBase = substr( $domain, 0, strpos( $domain, '.' ) );
-            $domainAliasBase = substr( HTTPS_DOMAIN_ALIAS, 1 );
-            $domainAlias = $domainBase . $domainAliasBase;
-          } else {
-            $domainAlias = HTTPS_DOMAIN_ALIAS;
-          }
+
+          // get corresponding domain alias for this domain
+          $domainAlias = htsda_get_domain_alias($domain);
 
           // If $location does not include simple https domain alias, rewrite it.
           if ( $domain != $domainAlias ) {
             $url = str_ireplace( $domain, $domainAlias, $url );
+            $url = str_ireplace( '//www.', '//', $url); //strip www to avoid sub-sub-domain structure
             $url = str_replace( 'http://', 'https://', $url );
           }
 
@@ -168,6 +144,44 @@ function htsda_mu_https_domain_rewrite( $url, $status = 0 ) {
       }
   }
   return $url;
+}
+
+
+/**
+ * Gets the domain alias for the given domain
+ */
+function htsda_get_domain_alias( $domain ) {
+  
+  if ( substr( HTTPS_DOMAIN_ALIAS, -strlen( $domain ) ) == $domain ) {
+    // Special case: $domainAlias ends with $domain,
+    // which is possible in WP Network when requesting
+    // the main site, don't rewrite urls as a https
+    // certificate for sure exists for direct domain.
+    // e.g. domain seravo.fi, domain alias *.seravo.fi
+    return $domain;
+  } 
+  
+  else if ( substr( HTTPS_DOMAIN_ALIAS, 0, 1 ) == '*' ) {
+
+    if(false !== strpos($domain, substr( HTTPS_DOMAIN_ALIAS, 1 )) ) {
+      // never include the https domain alias part in the domain base
+      $domainBase = substr( $domain, 0, strrpos( $domain, substr( HTTPS_DOMAIN_ALIAS, 1 ) ) );
+    } else {
+      // domain base is everything before the TLD part
+      // TODO: what about .co.uk ?
+      $domainBase = substr( $domain, 0, strrpos( $domain, '.' ) );
+    }
+    
+    // substitute dots with dashes so that we never end up in sub-sub domains
+    $domainBase = str_replace('.', '-', $domainBase); 
+    $domainAliasBase = substr( HTTPS_DOMAIN_ALIAS, 1 );
+    return $domainBase . $domainAliasBase;
+      
+  } 
+  
+  else {
+    return HTTPS_DOMAIN_ALIAS;
+  }
 }
 
 /**
@@ -180,23 +194,23 @@ function htsda_mu_https_domain_rewrite( $url, $status = 0 ) {
  * @return string $url
  */
 function htsda_debug_rewrite( $url, $path=false, $plugin = false, $extra = false ) {
-  error_log( "url=$url" );
-  $url = htsda_https_domain_rewrite( $url );
-  error_log( "return=$url" );
+  error_log( "in: $url" );
+  $url = is_multisite() ? htsda_mu_https_domain_rewrite( $url ) : htsda_https_domain_rewrite( $url );
+  error_log( "out: $url" );
   return $url;
 }
 
-/*
+/**
  * Includes a patch for Polylang Language plugin, which redefines home_url in the back-end
  */
 function htsda_home_url_rewrite( $url ) {
 
-  //don't rewrite urls for polylang settings
+  // don't rewrite urls for polylang settings page
   if ( isset($_GET['page']) && $_GET['page'] == 'mlang' ) {
     return $url;
   }
 
-  $url = htsda_https_domain_rewrite( $url );
+  $url = is_multisite() ? htsda_mu_https_domain_rewrite( $url ) : htsda_https_domain_rewrite( $url );
   return $url;
 }
 
@@ -208,7 +222,7 @@ function htsda_home_url_rewrite( $url ) {
  * Thanks to @chernjie for the idea!
  */
 
-/*
+/**
  * This converts any link to slash-relative
  *
  * NOTE: this applies to external links as well, so be careful with this!
@@ -317,8 +331,7 @@ function htsda_https_domain_alias_redirect_visitors() {
 
   if (  ! $is_on_domain_alias && 
       ! is_user_logged_in() && 
-      ! is_login_page() && 
-      ! is_multisite() )  {
+      ! is_login_page() )  {
     wp_redirect(get_option( 'HOME' ) . $_SERVER['REQUEST_URI'], 301 );
   }
 }
@@ -350,4 +363,11 @@ function htsda_build_readme_page() { ?>
       [WordPress Premium Hosting](http://seravo.fi/wordpress-palvelu).</small></p>
   </div>
   <?php
+}
+
+/**
+ * Sorter function by string length
+ */
+function _by_length($a, $b){
+  return strlen($b) - strlen($a);
 }
