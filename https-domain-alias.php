@@ -367,3 +367,35 @@ function htsda_build_readme_page() { ?>
 function _by_length($a, $b){
   return strlen($b) - strlen($a);
 }
+
+/**
+ * Strip off all site_url hostnames
+ * Slightly different from wp_make_link_relative
+ * @param $output
+ * @return string
+ */
+function strip_absolute_url($output) {
+	static $samples;
+	if (empty($samples))
+	{
+		$site_url = site_url();
+		remove_filter('site_url', 'htsda_https_domain_rewrite');
+		$original_url = site_url();
+		add_filter('site_url', 'htsda_https_domain_rewrite');
+		$samples = array_unique(array(
+			str_replace('http://', 'https://', $original_url),
+			str_replace('https://', 'http://', $original_url),
+			str_replace('http://', 'https://', site_url()),
+			str_replace('https://', 'http://', site_url()),
+		));
+	}
+	foreach ($samples as $sample)
+		$output = str_replace($sample, '', $output);
+	return $output;
+}
+if ( defined( 'HTTPS_DOMAIN_ALIAS' ) ) {
+	add_filter( 'content_save_pre',    'strip_absolute_url' );
+	add_filter( 'excerpt_save_pre',    'strip_absolute_url' );
+	add_filter( 'comment_save_pre',    'strip_absolute_url' );
+	add_filter( 'pre_comment_content', 'strip_absolute_url' );
+}
