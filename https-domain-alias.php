@@ -3,13 +3,13 @@
  * Plugin Name: HTTPS domain alias
  * Plugin URI: https://github.com/Seravo/wp-https-domain-alias
  * Description: Enable your site to have a different domains for HTTP and HTTPS. Useful e.g. if you have a wildcard SSL/TLS certificate for server but not for each site.
- * Version: 1.3
+ * Version: 1.3.1
  * Author: Seravo Oy
  * Author URI: http://seravo.fi
  * License: GPLv3
  */
 
-/** Copyright 2014 Seravo Oy
+/** Copyright 2015 Seravo Oy
 
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License, version 3, as
@@ -52,10 +52,6 @@
  * @return string
  */
 function htsda_https_domain_rewrite( $url, $status = 0 ) {
-
-  // TODO: second parameter if ofen scheme,
-  //       see http://codex.wordpress.org/Function_Reference/site_url#Parameters
-
 
   // Rewrite only if the request is https, or the user is logged in
   // to preserve cookie integrity
@@ -118,8 +114,8 @@ function htsda_mu_https_domain_rewrite( $url, $status = 0 ) {
 
         // dedupe domains
         $domains = array_unique( $domains );
-        
-        // order by string length so that we prefer the longest possible match
+
+		// order by string length so that we prefer the longest possible match
         usort($domains, '_by_length');
 
       }
@@ -168,7 +164,7 @@ function htsda_get_domain_alias( $domain ) {
       $domainBase = substr( $domain, 0, strrpos( $domain, substr( HTTPS_DOMAIN_ALIAS, 1 ) ) );
     } else {
       // domain base is everything before the TLD part
-      // TODO: what about .co.uk ?
+      // TODO: what about dual TLD's like .co.uk ?
       $domainBase = substr( $domain, 0, strrpos( $domain, '.' ) );
     }
     
@@ -356,7 +352,7 @@ function htsda_build_readme_page() { ?>
     <div id="message" class="error">
       <p><?php _e('This readme page is only visible when HTTPS_DOMAIN_ALIAS is not defined in wp-config.php. You will not see this once the constant is defined.', 'htsda' );?></p>
     </div>
-    <?php include( 'readme.html' ); ?>
+    <?php include( 'admin-readme.html' ); ?>
     <p>&nbsp;</p>
     <p><small>HTTPS Domain Alias is made by <a href="http://seravo.fi/">Seravo Oy</a>, which specialize
       in open source support services and among others is the only company in Finland to provide
@@ -366,7 +362,7 @@ function htsda_build_readme_page() { ?>
 }
 
 /**
- * Sorter function by string length
+ * A helper sorter function by string length
  */
 function _by_length($a, $b){
   return strlen($b) - strlen($a);

@@ -2,9 +2,9 @@
 Contributors: ottok, Zuige
 Tags: https, ssl, tls, alias, domain, seravo
 Donate link: http://seravo.fi/
-Requires at least: 3.9
-Tested up to: 4.0
-Stable tag: 1.3
+Requires at least: 3.9.1
+Tested up to: 4.2.1
+Stable tag: 1.3.1
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
