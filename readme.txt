@@ -1,10 +1,10 @@
 === HTTPS domain alias ===
-Contributors: ottok, Zuige
+Contributors: ottok, Zuige, onnimonni
 Tags: https, ssl, tls, alias, domain, seravo
 Donate link: http://seravo.fi/
 Requires at least: 3.9.1
 Tested up to: 4.2.1
-Stable tag: 1.3.1
+Stable tag: 1.3.2
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -76,6 +76,8 @@ Example when on **coss.fi** HTTPS_DOMAIN_ALIAS is **coss.seravo.fi**:
 == Changelog ==
 
 Note that complete commit log is available at https://github.com/Seravo/wp-https-domain-alias/commits/master
+= 1.3.2 =
+Added tests
 
 = 1.3 =
 * Wildcard domain aliases are now handled differently
