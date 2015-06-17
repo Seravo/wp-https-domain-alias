@@ -1,0 +1,22 @@
+{
+  "name": "seravo/wp-https-domain-alias",
+  "type": "wordpress-plugin",
+  "license": "GPLv3",
+  "description": "This plugin allows your site to fall back to a secure HTTPS domain when a certificate is not available.",
+  "homepage": "https://github.com/Seravo/wp-https-domain-alias",
+  "authors": [
+    {
+      "name": "Antti Kuosmanen",
+      "email": "antti@seravo.fi",
+      "homepage": "https://github.com/anttiviljami"
+    },
+    {
+      "name": "Otto Kekäläinen",
+      "email": "otto@seravo.fi",
+      "homepage": "https://github.com/ottok"
+    }
+  ],
+  "keywords": [
+    "wordpress","https", "domain", "alias"
+  ]
+}
