@@ -14,7 +14,7 @@ class PluginTest extends WP_UnitTestCase {
   }
 
   function test_should_change_url() {
-    $url = 'http://www.example.com/example/path'
+    $url = 'http://www.example.com/example/path';
     $domainAlias = "example.seravo.fi";
     $should_url = 'https://'.$domainAlias.'/example/path';
     $domains = ['example.fi']
