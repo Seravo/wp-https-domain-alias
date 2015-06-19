@@ -28,13 +28,5 @@ class PluginTest extends WP_UnitTestCase {
     $domains = ['example.com'];
     $this->assertEquals( $should_url,hstda_rewrite_url($url,$domains) );
   }
-
-  function test_with_alias_defined_multisite_should_change_url() {
-    define('HTTPS_DOMAIN_ALIAS','*.seravo.fi');
-    $url = 'http://www.example.com/example/path';
-    $should_url = 'https://'.HTTPS_DOMAIN_ALIAS.'/example/path';
-    $domains = ['example.com'];
-    $this->assertEquals( $should_url,hstda_rewrite_url($url,$domains) );
-  }
 }
 
