@@ -7,6 +7,10 @@ class MultisiteTest extends WP_UnitTestCase {
     $this->assertTrue( is_plugin_active( PLUGIN_PATH ) );
   }
 
+  /**
+   * @runInSeparateProcess
+   * @preserveGlobalState disabled
+   */
   function test_with_alias_defined_multisite_should_change_url() {
     define('HTTPS_DOMAIN_ALIAS','*.seravo.fi');
     $url = 'http://www.example.com/example/path';
