@@ -9,7 +9,7 @@ class PluginTest extends WP_UnitTestCase {
 
   function test_shouldnt_change_url() {
     $url = 'https://www.twitter.com/intent/tweet?via=Test&text=Test&url=http%3A%2F%2Fexample.com%2Ftest%2Fexample%2F';
-    $domains = ['example.com,example.fi'];
+    $domains = ['example.com','example.fi'];
     $this->assertEquals( $url,hstda_rewrite_url($url,$domains) );
   }
 
@@ -17,13 +17,13 @@ class PluginTest extends WP_UnitTestCase {
     $url = 'http://www.example.com/example/path';
     $domainAlias = "example.seravo.fi";
     $should_url = 'https://'.$domainAlias.'/example/path';
-    $domains = ['example.fi']
+    $domains = ['example.fi','example.com'];
     $this->assertEquals( $should_url,hstda_rewrite_url($url,$domains,$domainAlias) );
   }
 
   function test_with_alias_defined_should_change_url() {
     define('HTTPS_DOMAIN_ALIAS','example.seravo.fi');
-    $url = 'http://www.example.com/example/path'
+    $url = 'http://www.example.com/example/path';
     $should_url = 'https://'.HTTPS_DOMAIN_ALIAS.'/example/path';
     $domains = ['example.com'];
     $this->assertEquals( $should_url,hstda_rewrite_url($url,$domains) );
@@ -31,7 +31,7 @@ class PluginTest extends WP_UnitTestCase {
 
   function test_with_alias_defined_multisite_should_change_url() {
     define('HTTPS_DOMAIN_ALIAS','*.seravo.fi');
-    $url = 'http://www.example.com/example/path'
+    $url = 'http://www.example.com/example/path';
     $should_url = 'https://'.HTTPS_DOMAIN_ALIAS.'/example/path';
     $domains = ['example.com'];
     $this->assertEquals( $should_url,hstda_rewrite_url($url,$domains) );
