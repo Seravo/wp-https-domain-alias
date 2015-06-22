@@ -2,16 +2,18 @@
 
 class MultisiteTest extends WP_UnitTestCase {
 
-  // Check that that activation doesn't break
-  function test_plugin_activated() {
-    $this->assertTrue( is_plugin_active( PLUGIN_PATH ) );
+
+  // We need to forget earlier defined HTTPS_DOMAIN_ALIAS
+  public function run(WP_UnitTestCase $result = NULL) {
+      $this->setPreserveGlobalState(false);
+      return parent::run($result);
   }
 
   /**
    * @runInSeparateProcess
    * @preserveGlobalState disabled
    */
-  function test_with_alias_defined_multisite_should_change_url() {
+  function test_with_alias_defined_for_multisite_should_rewrite_url() {
     define('HTTPS_DOMAIN_ALIAS','*.seravo.fi');
     $url = 'http://www.example.com/example/path';
     $should_url = 'https://'.htsda_get_domain_alias('example.com').'/example/path';
