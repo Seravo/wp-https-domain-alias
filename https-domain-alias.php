@@ -63,9 +63,12 @@ function htsda_https_domain_rewrite( $url, $status = 0 ) {
       // during same request and thus define some variables as static.
       static $domains;
       if ( ! isset( $domains ) ) {
+        $domains = array();
         // $domain is current site URL without the www prefix
         // TODO: can we just strip www? convention says yes
-        $domains = array(ltrim(parse_url( get_option( 'home' ), PHP_URL_HOST ), 'www.'));
+        $domains[] = hstda_trim_url(parse_url( get_option( 'home' ), PHP_URL_HOST ), 'www.');
+        // Also take the current request host so this works even when redirect_canonical is not in use
+        $domains[] = hstda_trim_url($_SERVER['HTTP_HOST'], 'www.');
       }
 
       static $domainAlias;
@@ -74,7 +77,7 @@ function htsda_https_domain_rewrite( $url, $status = 0 ) {
       }
 
       // If $location does not include simple https domain alias, rewrite it.
-      hstda_rewrite_url($url,$domains,$domainAlias);
+      $url = hstda_rewrite_url($url,$domains,$domainAlias);
   }
   return $url;
 }
@@ -96,15 +99,15 @@ function htsda_mu_https_domain_rewrite( $url, $status = 0 ) {
       if ( !isset( $domains ) ) {
         $blogs = wp_get_sites(); // get info from wp_blogs table
         $domains = array(); // map the domains here
-        $domains[] = ltrim(parse_url( get_site_url( 1 ), PHP_URL_HOST ), 'www.'); // main site home
+        $domains[] = hstda_trim_url(parse_url( get_site_url( 1 ), PHP_URL_HOST ), 'www.'); // main site home
 
         // special case for wpmu domain mapping plugin
         if( function_exists('domain_mapping_siteurl') ) {
-          $domains[] = ltrim(parse_url( domain_mapping_siteurl( false ), PHP_URL_HOST ), 'www.');
+          $domains[] = hstda_trim_url(parse_url( domain_mapping_siteurl( false ), PHP_URL_HOST ), 'www.');
         } 
 
         foreach ( $blogs as $blog ) {
-          $domains[] = ltrim($blog['domain'],'www.');
+          $domains[] = hstda_trim_url($blog['domain'],'www.');
         }
 
         // dedupe domains
@@ -325,11 +328,10 @@ function htsda_https_domain_alias_readme() {
  * (optional)@param string    ssl secured domain alias of the site
  */
 function hstda_rewrite_url($url,$domains,$domainAlias=NULL) {
-
   $parts = parse_url($url);
 
   // Strip www. from url
-  $parts['host'] = ltrim($parts['host'], 'www.');
+  $parts['host'] = hstda_trim_url($parts['host'], 'www.');
 
   // Only rewrite local urls
   if (isset($parts['host']) && !in_array($parts['host'],$domains)) {
@@ -359,6 +361,18 @@ function hstda_build_url($parts){
     .((isset($parts['query'])) ? '?' . $parts['query'] : '')
     .((isset($parts['fragment'])) ? '#' . $parts['fragment'] : '')
   ;
+}
+
+/*
+ * Trims $prefix if it exists in the beginning of the string
+ * This is alot faster than regex
+ * See: http://stackoverflow.com/a/4517270/1337062
+ */
+function hstda_trim_url($str,$prefix) {
+  if (substr($str, 0, strlen($prefix)) == $prefix) {
+    $str = substr($str, strlen($prefix));
+  } 
+  return $str;
 }
 
 /*
