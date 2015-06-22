@@ -329,7 +329,6 @@ function htsda_https_domain_alias_readme() {
  */
 function hstda_rewrite_url($url,$domains,$domainAlias=NULL) {
   $parts = parse_url($url);
-  error_log("HSTDA url:".$url,0);
 
   // Strip www. from url
   $parts['host'] = hstda_trim_url($parts['host'], 'www.');
