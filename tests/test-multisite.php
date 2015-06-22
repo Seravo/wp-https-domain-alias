@@ -4,7 +4,7 @@ class MultisiteTest extends WP_UnitTestCase {
 
 
   // We need to forget earlier defined HTTPS_DOMAIN_ALIAS
-  public function run(WP_UnitTestCase $result = NULL) {
+  public function run(PHPUnit_Framework_Test $result = NULL) {
       $this->setPreserveGlobalState(false);
       return parent::run($result);
   }
