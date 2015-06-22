@@ -61,11 +61,14 @@ function htsda_https_domain_rewrite( $url, $status = 0 ) {
 
       // Assume domain is always same for all calls to this function
       // during same request and thus define some variables as static.
-      static $domain;
-      if ( ! isset( $domain ) ) {
+      static $domains;
+      if ( ! isset( $domains ) ) {
+        $domains = array();
         // $domain is current site URL without the www prefix
         // TODO: can we just strip www? convention says yes
-        $domain = preg_replace('/^www\./i', '', parse_url( get_option( 'home' ), PHP_URL_HOST ));
+        $domains[] = hstda_trim_url(parse_url( get_option( 'home' ), PHP_URL_HOST ), 'www.');
+        // Also take the current request host so this works even when redirect_canonical is not in use
+        $domains[] = hstda_trim_url($_SERVER['HTTP_HOST'], 'www.');
       }
 
       static $domainAlias;
@@ -74,15 +77,10 @@ function htsda_https_domain_rewrite( $url, $status = 0 ) {
       }
 
       // If $location does not include simple https domain alias, rewrite it.
-      if ( $domain != $domainAlias ) {
-        $url = str_ireplace( $domain, $domainAlias, $url );
-        $url = str_ireplace( '//www.', '//', $url); //strip www to avoid sub-sub-domain structure
-        $url = str_replace( 'http://', 'https://', $url );
-      }
+      $url = hstda_rewrite_url($url,$domains,$domainAlias);
   }
   return $url;
 }
-
 
 /**
  * Same as above, but handles all domains in a multisite
@@ -101,43 +99,23 @@ function htsda_mu_https_domain_rewrite( $url, $status = 0 ) {
       if ( !isset( $domains ) ) {
         $blogs = wp_get_sites(); // get info from wp_blogs table
         $domains = array(); // map the domains here
-        $domains[] = preg_replace('/^www\./i', '', parse_url( get_site_url( 1 ), PHP_URL_HOST )); // main site home
+        $domains[] = hstda_trim_url(parse_url( get_site_url( 1 ), PHP_URL_HOST ), 'www.'); // main site home
 
         // special case for wpmu domain mapping plugin
         if( function_exists('domain_mapping_siteurl') ) {
-          $domains[] = preg_replace('/^www\./i', '', parse_url( domain_mapping_siteurl( false ), PHP_URL_HOST ));
+          $domains[] = hstda_trim_url(parse_url( domain_mapping_siteurl( false ), PHP_URL_HOST ), 'www.');
         } 
 
         foreach ( $blogs as $blog ) {
-          $domains[] = preg_replace('/^www\./i', '', $blog['domain']);
+          $domains[] = hstda_trim_url($blog['domain'],'www.');
         }
 
         // dedupe domains
         $domains = array_unique( $domains );
-
-		// order by string length so that we prefer the longest possible match
-        usort($domains, '_by_length');
-
       }
 
-      foreach ($domains as $domain) {
-        if ( strpos( $url, $domain ) ) {
-          // url is part of the network!
-
-          // get corresponding domain alias for this domain
-          $domainAlias = htsda_get_domain_alias($domain);
-
-          // If $location does not include simple https domain alias, rewrite it.
-          if ( $domain != $domainAlias ) {
-            $url = str_ireplace( $domain, $domainAlias, $url );
-            $url = str_ireplace( '//www.', '//', $url); //strip www to avoid sub-sub-domain structure
-            $url = str_replace( 'http://', 'https://', $url );
-          }
-
-          // rewrite done, no need to keep looping
-          break;
-        }
-      }
+      // Rewrite the $url
+      $url = hstda_rewrite_url($url,$domains);
   }
   return $url;
 }
@@ -147,7 +125,6 @@ function htsda_mu_https_domain_rewrite( $url, $status = 0 ) {
  * Gets the domain alias for the given domain
  */
 function htsda_get_domain_alias( $domain ) {
-  
   if ( substr( HTTPS_DOMAIN_ALIAS, -strlen( $domain ) ) == $domain ) {
     // Special case: $domainAlias ends with $domain,
     // which is possible in WP Network when requesting
@@ -341,6 +318,61 @@ function htsda_https_domain_alias_readme() {
   if ( ! defined( 'HTTPS_DOMAIN_ALIAS' ) ) {
     add_options_page( 'HTTPS Domain Alias', 'HTTPS Domain Alias', 'administrator', __FILE__, 'htsda_build_readme_page', plugins_url( '/images/icon.png', __FILE__ ) );
   }
+}
+
+/*
+ * Helper: Rewrite url if it's pointing to this site
+ * 
+ * @param string    well formed url     
+ * @param array    domains of the site
+ * (optional)@param string    ssl secured domain alias of the site
+ */
+function hstda_rewrite_url($url,$domains,$domainAlias=NULL) {
+  $parts = parse_url($url);
+
+  // Strip www. from url
+  $parts['host'] = hstda_trim_url($parts['host'], 'www.');
+
+  // Only rewrite local urls
+  if (isset($parts['host']) && !in_array($parts['host'],$domains)) {
+    return $url; // If the host is eg. twitter.com leave it unchanged
+  } else {
+    $parts['scheme'] = "https";
+    $parts['host'] = (isset($domainAlias)) ? $domainAlias : htsda_get_domain_alias($parts['host']);
+    // TODO Is there cases where we should also replace $parts['query'] ?
+    return hstda_build_url($parts); 
+  }
+}
+
+/*
+ * Helper: Build an URL
+ * Useful for building new url from @return value of parse_url()
+ * 
+ * @param mixed     (Part(s) of) an URL in form of a string or associative array like parse_url() returns
+ * @param mixed     Same as the first argument
+ */
+function hstda_build_url($parts){    
+  return 
+     ((isset($parts['scheme'])) ? $parts['scheme'] . '://' : '')
+    .((isset($parts['user'])) ? $parts['user'] . ((isset($parts['pass'])) ? ':' . $parts['pass'] : '') .'@' : '')
+    .((isset($parts['host'])) ? $parts['host'] : '')
+    .((isset($parts['port'])) ? ':' . $parts['port'] : '')
+    .((isset($parts['path'])) ? $parts['path'] : '')
+    .((isset($parts['query'])) ? '?' . $parts['query'] : '')
+    .((isset($parts['fragment'])) ? '#' . $parts['fragment'] : '')
+  ;
+}
+
+/*
+ * Trims $prefix if it exists in the beginning of the string
+ * This is alot faster than regex
+ * See: http://stackoverflow.com/a/4517270/1337062
+ */
+function hstda_trim_url($str,$prefix) {
+  if (substr($str, 0, strlen($prefix)) == $prefix) {
+    $str = substr($str, strlen($prefix));
+  } 
+  return $str;
 }
 
 /*
