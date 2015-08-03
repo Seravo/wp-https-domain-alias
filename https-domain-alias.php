@@ -3,7 +3,7 @@
  * Plugin Name: HTTPS domain alias
  * Plugin URI: https://github.com/Seravo/wp-https-domain-alias
  * Description: Enable your site to have a different domains for HTTP and HTTPS. Useful e.g. if you have a wildcard SSL/TLS certificate for server but not for each site.
- * Version: 1.3.2
+ * Version: 1.3.3
  * Author: Seravo Oy
  * Author URI: http://seravo.fi
  * License: GPLv3
@@ -177,6 +177,11 @@ function htsda_debug_rewrite( $url, $path=false, $plugin = false, $extra = false
  * Includes a patch for Polylang Language plugin, which redefines home_url in the back-end
  */
 function htsda_home_url_rewrite( $url ) {
+  // Store the original url in global constant so that we can use it later to fix things
+  if (!defined('HTTPS_DOMAIN_ALIAS_FRONTEND_URL')) {
+    $parsed_url = parse_url($url);
+    define('HTTPS_DOMAIN_ALIAS_FRONTEND_URL', $parsed_url['scheme'].'://'.$parsed_url['host'].'/');
+  }
 
   // don't rewrite urls for polylang settings page
   if ( isset($_GET['page']) && $_GET['page'] == 'mlang' ) {
@@ -224,8 +229,8 @@ function htsda_root_relative_media_urls( $html, $id, $att ) {
 /*
  * This adds a small javascript fix for the TinyMCE link adder dialog
  */
-function htsda_link_adder_fix( $hook ) {
-  if ( 'post.php' === $hook || 'post-new.php' === $hook ) {
+function htsda_link_adder_fix( $Hook ) {
+  if ( 'post.php' === $Hook || 'post-new.php' === $Hook ) {
     // we only need to use this fix in post.php
     wp_enqueue_script( 'link-relative', plugin_dir_url( __FILE__ ) . 'link-relative.js' );
   }
@@ -398,4 +403,19 @@ function htsda_build_readme_page() { ?>
  */
 function _by_length($a, $b){
   return strlen($b) - strlen($a);
+}
+
+/*
+ * Change how the permalink is shown in backend editor view
+ */
+add_filter('get_sample_permalink_html','htsda_sample_permalink_html',5,1);
+function htsda_sample_permalink_html($content){
+  if (defined('HTTPS_DOMAIN_ALIAS_FRONTEND_URL')) {
+    $domain_alias = "https://".htsda_get_domain_alias(HTTPS_DOMAIN_ALIAS_FRONTEND_URL)."/";
+
+    // Replace url between <a> tags
+    // If we just replace from everywhere it breaks preview links
+    $content = str_replace('>'.$domain_alias.'<','>'.HTTPS_DOMAIN_ALIAS_FRONTEND_URL.'<',$content);
+  }
+  return $content;
 }
