@@ -180,7 +180,7 @@ function htsda_home_url_rewrite( $url ) {
   // Store the original url in global constant so that we can use it later to fix things
   if (!defined('HTTPS_DOMAIN_ALIAS_FRONTEND_URL')) {
     $parsed_url = parse_url($url);
-    define('HTTPS_DOMAIN_ALIAS_FRONTEND_URL', $parsed_url['scheme'].'://'.$parsed_url['host'].'/');
+    define('HTTPS_DOMAIN_ALIAS_FRONTEND_URL', $parsed_url['scheme'].'://'.$parsed_url['host'].$parsed_url['path']);
   }
 
   // don't rewrite urls for polylang settings page
@@ -411,11 +411,11 @@ function _by_length($a, $b){
 add_filter('get_sample_permalink_html','htsda_sample_permalink_html',5,1);
 function htsda_sample_permalink_html($content){
   if (defined('HTTPS_DOMAIN_ALIAS_FRONTEND_URL')) {
-    $domain_alias = "https://".htsda_get_domain_alias(HTTPS_DOMAIN_ALIAS_FRONTEND_URL)."/";
+    $domain_alias = htsda_home_url_rewrite(HTTPS_DOMAIN_ALIAS_FRONTEND_URL);
 
     // Replace url between <a> tags
     // If we just replace from everywhere it breaks preview links
-    $content = str_replace('>'.$domain_alias.'<','>'.HTTPS_DOMAIN_ALIAS_FRONTEND_URL.'<',$content);
+    $content = str_replace('>'.$domain_alias,'>'.HTTPS_DOMAIN_ALIAS_FRONTEND_URL,$content);
   }
   return $content;
 }
