@@ -254,17 +254,17 @@ if ( defined( 'HTTPS_DOMAIN_ALIAS' ) ) {
   // A redirect or link to https may happen from pages served via http
   $domain_filter = is_multisite() ? 'htsda_mu_https_domain_rewrite' : 'htsda_https_domain_rewrite';
 
-  add_filter( 'login_url',                   $domain_filter );
-  add_filter( 'logout_url',                  $domain_filter );
-  add_filter( 'admin_url',                   $domain_filter );
-  add_filter( 'wp_redirect',                 $domain_filter );
-  add_filter( 'plugins_url',                 $domain_filter );
-  add_filter( 'content_url',                 $domain_filter );
-  add_filter( 'theme_mod_header_image',      $domain_filter );
-  add_filter( 'wp_get_attachment_url',       $domain_filter );
-  add_filter( 'wp_get_attachment_thumb_url', $domain_filter );
-  add_filter( 'site_url',                    $domain_filter );
-  add_filter( 'home_url',                    'htsda_home_url_rewrite' );
+  add_filter( 'login_url',                   $domain_filter, 20 );
+  add_filter( 'logout_url',                  $domain_filter, 20 );
+  add_filter( 'admin_url',                   $domain_filter, 20 );
+  add_filter( 'wp_redirect',                 $domain_filter, 20 );
+  add_filter( 'plugins_url',                 $domain_filter, 20 );
+  add_filter( 'content_url',                 $domain_filter, 20 );
+  add_filter( 'theme_mod_header_image',      $domain_filter, 20 );
+  add_filter( 'wp_get_attachment_url',       $domain_filter, 20 );
+  add_filter( 'wp_get_attachment_thumb_url', $domain_filter, 20 );
+  add_filter( 'site_url',                    $domain_filter, 20 );
+  add_filter( 'home_url',                    'htsda_home_url_rewrite', 20 );
 
   // Force relative urls for links created in the wp-admin
   add_filter( 'media_send_to_editor', 'htsda_root_relative_media_urls', 10, 3 );
