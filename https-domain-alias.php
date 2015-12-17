@@ -350,18 +350,24 @@ function htsda_https_domain_alias_readme() {
  * @param array    domains of the site
  * (optional)@param string    ssl secured domain alias of the site
  */
-function hstda_rewrite_url($url,$domains,$domainAlias=NULL) {
+function hstda_rewrite_url($url ,$domains , $domainAlias = NULL ) {
+  // $url must start with http
+  // => don't touch relative or non http/https urls
+  if( substr( $url, 0, 4) != 'http' ) {
+    return $url;
+  }
+
   $parts = parse_url($url);
 
   // Strip www. from url
-  $parts['host'] = hstda_trim_url($parts['host'], 'www.');
+  $parts['host'] = hstda_trim_url( $parts['host'], 'www.' );
 
   // Only rewrite local urls
-  if (isset($parts['host']) && !in_array($parts['host'],$domains)) {
+  if ( isset( $parts['host'] ) && !in_array( $parts['host'], $domains ) ) {
     return $url; // If the host is eg. twitter.com leave it unchanged
   } else {
-    $parts['scheme'] = "https";
-    $parts['host'] = (isset($domainAlias)) ? $domainAlias : htsda_get_domain_alias($parts['host']);
+    $parts['scheme'] = 'https';
+    $parts['host'] = isset($domainAlias) ? $domainAlias : htsda_get_domain_alias( $parts['host'] );
     // TODO Is there cases where we should also replace $parts['query'] ?
     return hstda_build_url($parts);
   }
@@ -374,7 +380,7 @@ function hstda_rewrite_url($url,$domains,$domainAlias=NULL) {
  * @param mixed     (Part(s) of) an URL in form of a string or associative array like parse_url() returns
  * @param mixed     Same as the first argument
  */
-function hstda_build_url( $parts ){
+function hstda_build_url( $parts ) {
   return
      ((isset($parts['scheme'])) ? $parts['scheme'] . '://' : '')
     .((isset($parts['user'])) ? $parts['user'] . ((isset($parts['pass'])) ? ':' . $parts['pass'] : '') .'@' : '')
@@ -390,7 +396,7 @@ function hstda_build_url( $parts ){
  * This is alot faster than regex
  * See: http://stackoverflow.com/a/4517270/1337062
  */
-function hstda_trim_url($str, $prefix) {
+function hstda_trim_url( $str, $prefix ) {
   if ( substr( $str, 0, strlen( $prefix ) ) === $prefix ) {
     $str = substr( $str, strlen( $prefix ) );
   }
