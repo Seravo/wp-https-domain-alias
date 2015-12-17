@@ -1,4 +1,4 @@
-=== HTTPS domain alias ===
+=== HTTPS Domain Alias ===
 Contributors: ottok, Zuige, onnimonni
 Tags: https, ssl, tls, alias, domain, seravo
 Donate link: http://seravo.fi/
