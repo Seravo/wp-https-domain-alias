@@ -333,7 +333,7 @@ function htsda_https_domain_alias_redirect_visitors() {
 }
 
 /**
- * Show a readme page in the settings menu if HTTSP_DOMAIN_ALIAS is not defined
+ * Show a readme page in the settings menu if HTTPS_DOMAIN_ALIAS is not defined
  */
 add_action( 'admin_menu', 'htsda_https_domain_alias_readme' );
 function htsda_https_domain_alias_readme() {
