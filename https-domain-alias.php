@@ -271,6 +271,15 @@ if ( defined( 'HTTPS_DOMAIN_ALIAS' ) ) {
   add_filter( 'image_send_to_editor', 'htsda_root_relative_image_urls', 10, 9 );
   add_action( 'admin_enqueue_scripts', 'htsda_link_adder_fix' );
 
+  // For Polylang compatibility, we need to tell it not to cache home urls for the languages
+  // Thanks @sippis, for helping us find this bug !
+  if( ! defined( 'PLL_CACHE_HOME_URL' ) ) {
+    define( 'PLL_CACHE_HOME_URL', false );
+  }
+  else if( PLL_CACHE_HOME_URL ) {
+    // TODO: if set to true, we should show an incompatibility warning
+  }
+
 } else {
   error_log( 'Constant HTTPS_DOMAIN_ALIAS is not defined' );
 }
