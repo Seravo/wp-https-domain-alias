@@ -52,6 +52,12 @@
  * @return string
  */
 function htsda_https_domain_rewrite( $url, $status = 0 ) {
+  if ( ! is_string( $url ) ) {
+    // do nothing if $url is not a string
+    // the customizer view seems to sometimes pass an empty array to this filter for some reason.
+    // this would crash the entire plugin
+    return $url;
+  }
 
   // Rewrite only if the request is https, or the user is logged in
   // to preserve cookie integrity
@@ -86,6 +92,12 @@ function htsda_https_domain_rewrite( $url, $status = 0 ) {
  * Same as above, but handles all domains in a multisite
  */
 function htsda_mu_https_domain_rewrite( $url, $status = 0 ) {
+  if ( ! is_string( $url ) ) {
+    // do nothing if $url is not a string
+    // the customizer view seems to sometimes pass an empty array to this filter for some reason.
+    // this would crash the entire plugin
+    return $url;
+  }
 
   // Rewrite only if the request is https, or the user is logged in
   // to preserve cookie integrity
@@ -93,7 +105,7 @@ function htsda_mu_https_domain_rewrite( $url, $status = 0 ) {
     || ( function_exists( 'is_user_logged_in' ) && is_user_logged_in()
       && ! ( defined( 'DISABLE_FRONTEND_SSL' ) && DISABLE_FRONTEND_SSL ) ) ) {
 
-      // these won't change during the request  
+      // these won't change during the request
       static $domains;
 
       if ( !isset( $domains ) ) {
@@ -104,7 +116,7 @@ function htsda_mu_https_domain_rewrite( $url, $status = 0 ) {
         // special case for wpmu domain mapping plugin
         if( function_exists('domain_mapping_siteurl') ) {
           $domains[] = hstda_trim_url(parse_url( domain_mapping_siteurl( false ), PHP_URL_HOST ), 'www.');
-        } 
+        }
 
         foreach ( $blogs as $blog ) {
           $domains[] = hstda_trim_url($blog['domain'],'www.');
@@ -120,7 +132,6 @@ function htsda_mu_https_domain_rewrite( $url, $status = 0 ) {
   return $url;
 }
 
-
 /**
  * Gets the domain alias for the given domain
  */
@@ -132,8 +143,8 @@ function htsda_get_domain_alias( $domain ) {
     // certificate for sure exists for direct domain.
     // e.g. domain seravo.fi, domain alias *.seravo.fi
     return $domain;
-  } 
-  
+  }
+
   else if ( substr( HTTPS_DOMAIN_ALIAS, 0, 1 ) == '*' ) {
 
     if(false !== strpos($domain, substr( HTTPS_DOMAIN_ALIAS, 1 )) ) {
@@ -144,14 +155,14 @@ function htsda_get_domain_alias( $domain ) {
       // TODO: what about dual TLD's like .co.uk ?
       $domainBase = substr( $domain, 0, strrpos( $domain, '.' ) );
     }
-    
+
     // substitute dots with dashes so that we never end up in sub-sub domains
-    $domainBase = str_replace('.', '-', $domainBase); 
+    $domainBase = str_replace('.', '-', $domainBase);
     $domainAliasBase = substr( HTTPS_DOMAIN_ALIAS, 1 );
     return $domainBase . $domainAliasBase;
-      
-  } 
-  
+
+  }
+
   else {
     return HTTPS_DOMAIN_ALIAS;
   }
@@ -167,20 +178,20 @@ function htsda_get_domain_alias( $domain ) {
  * @return string $url
  */
 function htsda_debug_rewrite( $url, $path=false, $plugin = false, $extra = false ) {
-  error_log( "in: $url" );
+  error_log( "[HTTPS DOMAIN ALIAS DEBUG] in: $url" );
   $url = is_multisite() ? htsda_mu_https_domain_rewrite( $url ) : htsda_https_domain_rewrite( $url );
-  error_log( "out: $url" );
+  error_log( "[HTTPS DOMAIN ALIAS DEBUG] out: $url" );
   return $url;
 }
 
 /**
- * Includes a patch for Polylang Language plugin, which redefines home_url in the back-end
+ * Rewrites specific for homeurl
  */
 function htsda_home_url_rewrite( $url ) {
-  // Store the original url in global constant so that we can use it later to fix things
-  if (!defined('HTTPS_DOMAIN_ALIAS_FRONTEND_URL')) {
-    $parsed_url = parse_url($url);
-    define('HTTPS_DOMAIN_ALIAS_FRONTEND_URL', $parsed_url['scheme'].'://'.$parsed_url['host'].$parsed_url['path']);
+  // Store the original url in a global constant so that we can use it later to fix things
+  if ( !defined('HTTPS_DOMAIN_ALIAS_FRONTEND_URL') ) {
+    $parsed_url = parse_url( $url );
+    define( 'HTTPS_DOMAIN_ALIAS_FRONTEND_URL', $parsed_url['scheme'] . '://' . $parsed_url['host'] . $parsed_url['path']);
   }
 
   // don't rewrite urls for polylang settings page
@@ -243,22 +254,31 @@ if ( defined( 'HTTPS_DOMAIN_ALIAS' ) ) {
   // A redirect or link to https may happen from pages served via http
   $domain_filter = is_multisite() ? 'htsda_mu_https_domain_rewrite' : 'htsda_https_domain_rewrite';
 
-  add_filter( 'login_url',                   $domain_filter );
-  add_filter( 'logout_url',                  $domain_filter );
-  add_filter( 'admin_url',                   $domain_filter );
-  add_filter( 'wp_redirect',                 $domain_filter );
-  add_filter( 'plugins_url',                 $domain_filter );
-  add_filter( 'content_url',                 $domain_filter );
-  add_filter( 'theme_mod_header_image',      $domain_filter );
-  add_filter( 'wp_get_attachment_url',       $domain_filter );
-  add_filter( 'wp_get_attachment_thumb_url', $domain_filter );
-  add_filter( 'site_url',                    $domain_filter );
-  add_filter( 'home_url',                    'htsda_home_url_rewrite' );
+  add_filter( 'login_url',                   $domain_filter, 20 );
+  add_filter( 'logout_url',                  $domain_filter, 20 );
+  add_filter( 'admin_url',                   $domain_filter, 20 );
+  add_filter( 'wp_redirect',                 $domain_filter, 20 );
+  add_filter( 'plugins_url',                 $domain_filter, 20 );
+  add_filter( 'content_url',                 $domain_filter, 20 );
+  add_filter( 'theme_mod_header_image',      $domain_filter, 20 );
+  add_filter( 'wp_get_attachment_url',       $domain_filter, 20 );
+  add_filter( 'wp_get_attachment_thumb_url', $domain_filter, 20 );
+  add_filter( 'site_url',                    $domain_filter, 20 );
+  add_filter( 'home_url',                    'htsda_home_url_rewrite', 20 );
 
-  // Force relative urls for links created in the wp-admin 
+  // Force relative urls for links created in the wp-admin
   add_filter( 'media_send_to_editor', 'htsda_root_relative_media_urls', 10, 3 );
   add_filter( 'image_send_to_editor', 'htsda_root_relative_image_urls', 10, 9 );
-  add_action( 'admin_enqueue_scripts', 'htsda_link_adder_fix' ); 
+  add_action( 'admin_enqueue_scripts', 'htsda_link_adder_fix' );
+
+  // For Polylang compatibility, we need to tell it not to cache home urls for the languages
+  // Thanks @sippis, for helping us find this bug !
+  if( ! defined( 'PLL_CACHE_HOME_URL' ) ) {
+    define( 'PLL_CACHE_HOME_URL', false );
+  }
+  else if( PLL_CACHE_HOME_URL ) {
+    // TODO: if set to true, we should show an incompatibility warning
+  }
 
 } else {
   error_log( 'Constant HTTPS_DOMAIN_ALIAS is not defined' );
@@ -295,7 +315,6 @@ function is_login_page() {
   return in_array( $GLOBALS['pagenow'], array( 'wp-login.php', 'wp-register.php' ) );
 }
 
-
 /*
  * Redirects non logged in visitors away from the visible domain alias front
  * end. This also makes sure search engines don't index the domain alias but
@@ -303,23 +322,22 @@ function is_login_page() {
  */
 add_action( 'wp', 'htsda_https_domain_alias_redirect_visitors' );
 function htsda_https_domain_alias_redirect_visitors() {
-  
   // check if visitor is currently in a domain alias location
   $is_on_domain_alias = strpos( get_option( 'HOME' ), $_SERVER['HTTP_HOST'] );
 
-  if (  ! $is_on_domain_alias && 
-      ! is_user_logged_in() && 
+  if (  ! $is_on_domain_alias &&
+      ! is_user_logged_in() &&
       ! is_login_page() )  {
     wp_redirect(get_option( 'HOME' ) . $_SERVER['REQUEST_URI'], 301 );
   }
 }
 
 /**
- * Create a readme page in the settings menu
+ * Show a readme page in the settings menu if HTTPS_DOMAIN_ALIAS is not defined
  */
 add_action( 'admin_menu', 'htsda_https_domain_alias_readme' );
 function htsda_https_domain_alias_readme() {
-  //Readme is only visible, when HTTPS_DOMAIN_ALIAS is not defined
+  // readme is only visible, when HTTPS_DOMAIN_ALIAS is not defined
   if ( ! defined( 'HTTPS_DOMAIN_ALIAS' ) ) {
     add_options_page( 'HTTPS Domain Alias', 'HTTPS Domain Alias', 'administrator', __FILE__, 'htsda_build_readme_page', plugins_url( '/images/icon.png', __FILE__ ) );
   }
@@ -327,8 +345,8 @@ function htsda_https_domain_alias_readme() {
 
 /*
  * Helper: Rewrite url if it's pointing to this site
- * 
- * @param string    well formed url     
+ *
+ * @param string    well formed url
  * @param array    domains of the site
  * (optional)@param string    ssl secured domain alias of the site
  */
@@ -345,27 +363,26 @@ function hstda_rewrite_url($url,$domains,$domainAlias=NULL) {
     $parts['scheme'] = "https";
     $parts['host'] = (isset($domainAlias)) ? $domainAlias : htsda_get_domain_alias($parts['host']);
     // TODO Is there cases where we should also replace $parts['query'] ?
-    return hstda_build_url($parts); 
+    return hstda_build_url($parts);
   }
 }
 
 /*
  * Helper: Build an URL
  * Useful for building new url from @return value of parse_url()
- * 
+ *
  * @param mixed     (Part(s) of) an URL in form of a string or associative array like parse_url() returns
  * @param mixed     Same as the first argument
  */
-function hstda_build_url($parts){    
-  return 
+function hstda_build_url( $parts ){
+  return
      ((isset($parts['scheme'])) ? $parts['scheme'] . '://' : '')
     .((isset($parts['user'])) ? $parts['user'] . ((isset($parts['pass'])) ? ':' . $parts['pass'] : '') .'@' : '')
     .((isset($parts['host'])) ? $parts['host'] : '')
     .((isset($parts['port'])) ? ':' . $parts['port'] : '')
     .((isset($parts['path'])) ? $parts['path'] : '')
     .((isset($parts['query'])) ? '?' . $parts['query'] : '')
-    .((isset($parts['fragment'])) ? '#' . $parts['fragment'] : '')
-  ;
+    .((isset($parts['fragment'])) ? '#' . $parts['fragment'] : '');
 }
 
 /*
@@ -373,29 +390,30 @@ function hstda_build_url($parts){
  * This is alot faster than regex
  * See: http://stackoverflow.com/a/4517270/1337062
  */
-function hstda_trim_url($str,$prefix) {
-  if (substr($str, 0, strlen($prefix)) == $prefix) {
-    $str = substr($str, strlen($prefix));
-  } 
+function hstda_trim_url($str, $prefix) {
+  if ( substr( $str, 0, strlen( $prefix ) ) === $prefix ) {
+    $str = substr( $str, strlen( $prefix ) );
+  }
   return $str;
 }
 
 /*
  * Display the readme page
  */
-function htsda_build_readme_page() { ?>
-  <div class="wrap">
-    <h2>HTTPS Domain Alias</h2>
-    <div id="message" class="error">
-      <p><?php _e('This readme page is only visible when HTTPS_DOMAIN_ALIAS is not defined in wp-config.php. You will not see this once the constant is defined.', 'htsda' );?></p>
-    </div>
-    <?php include( 'admin-readme.html' ); ?>
-    <p>&nbsp;</p>
-    <p><small>HTTPS Domain Alias is made by <a href="http://seravo.fi/">Seravo Oy</a>, which specialize
-      in open source support services and among others is the only company in Finland to provide
-      [WordPress Premium Hosting](http://seravo.fi/wordpress-palvelu).</small></p>
+function htsda_build_readme_page() {
+?>
+<div class="wrap">
+  <h2>HTTPS Domain Alias</h2>
+  <div id="message" class="error">
+    <p><?php _e('This readme page is only visible when HTTPS_DOMAIN_ALIAS is not defined in wp-config.php. You will not see this once the constant is defined.', 'htsda' );?></p>
   </div>
-  <?php
+  <?php include( 'admin-readme.html' ); ?>
+  <p>&nbsp;</p>
+  <p><small>HTTPS Domain Alias is made by <a href="http://seravo.fi/">Seravo Oy</a>, which specialize
+    in open source support services and among others is the only company in Finland to provide
+    [WordPress Premium Hosting](http://seravo.fi/wordpress-palvelu).</small></p>
+</div>
+<?php
 }
 
 /**
@@ -408,14 +426,14 @@ function _by_length($a, $b){
 /*
  * Change how the permalink is shown in backend editor view
  */
-add_filter('get_sample_permalink_html','htsda_sample_permalink_html',5,1);
-function htsda_sample_permalink_html($content){
-  if (defined('HTTPS_DOMAIN_ALIAS_FRONTEND_URL')) {
-    $domain_alias = htsda_home_url_rewrite(HTTPS_DOMAIN_ALIAS_FRONTEND_URL);
+add_filter( 'get_sample_permalink_html', 'htsda_sample_permalink_html', 5, 1);
+function htsda_sample_permalink_html( $content ){
+  if ( defined( 'HTTPS_DOMAIN_ALIAS_FRONTEND_URL' ) ) {
+    $domain_alias = htsda_home_url_rewrite( HTTPS_DOMAIN_ALIAS_FRONTEND_URL );
 
     // Replace url between <a> tags
     // If we just replace from everywhere it breaks preview links
-    $content = str_replace('>'.$domain_alias,'>'.HTTPS_DOMAIN_ALIAS_FRONTEND_URL,$content);
+    $content = str_replace( '>' . $domain_alias, '>' . HTTPS_DOMAIN_ALIAS_FRONTEND_URL, $content);
   }
   return $content;
 }
