@@ -217,8 +217,15 @@ function htsda_home_url_rewrite( $url ) {
  * NOTE: this applies to external links as well, so be careful with this!
  */
 function htsda_root_relative_url( $url, $html ) {
-  // If urls already start from root, just return it
-  if ( $url[0] == "/" ) return $html;
+  // links may be scheme agnostic (starting with //)
+  // in this case we want to temporarily add a scheme for parse_url to work
+  if ( substr( $url, 0, 2 ) === "//" ) {
+    $url = 'http:' . $url; // -> is now a full-form url.
+    // scheme doesn't matter since it's removed anyways during the next step
+  }
+
+  // If url is already relative, do nothing
+  if ( substr( $url, 0, 4 ) != "http" ) return $html;
 
   $p = parse_url( $url );
   $root = $p['scheme'] . "://" . $p['host'];
