@@ -1,9 +1,9 @@
 === HTTPS Domain Alias ===
-Contributors: ottok, Zuige, onnimonni
+Contributors: ottok, zuige, onnimonni
 Tags: https, ssl, tls, alias, domain, seravo
 Donate link: http://seravo.fi/
 Requires at least: 3.7
-Tested up to: 4.4
+Tested up to: 4.4.1
 Stable tag: 1.4.2
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html

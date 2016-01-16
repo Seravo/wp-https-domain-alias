@@ -9,7 +9,7 @@
  * License: GPLv3
  */
 
-/** Copyright 2015 Seravo Oy
+/** Copyright 2015-2016 Seravo Oy
 
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License, version 3, as
