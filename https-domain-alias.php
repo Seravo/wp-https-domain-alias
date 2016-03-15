@@ -109,7 +109,8 @@ function htsda_mu_https_domain_rewrite( $url, $status = 0 ) {
       static $domains;
 
       if ( !isset( $domains ) ) {
-        $blogs = wp_get_sites(); // get info from wp_blogs table
+        $args = array( 'limit' => null ); // do not limit the number of results
+        $blogs = wp_get_sites( $args ); // get info from wp_blogs table
         $domains = array(); // map the domains here
         $domains[] = hstda_trim_url(parse_url( get_site_url( 1 ), PHP_URL_HOST ), 'www.'); // main site home
 
