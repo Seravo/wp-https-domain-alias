@@ -1,7 +1,7 @@
 {
   "name": "seravo/wp-https-domain-alias",
   "type": "wordpress-plugin",
-  "license": "GPLv3",
+  "license": "GPL-3.0",
   "description": "This plugin allows your site to fall back to a secure HTTPS domain when a certificate is not available.",
   "homepage": "https://github.com/Seravo/wp-https-domain-alias",
   "authors": [

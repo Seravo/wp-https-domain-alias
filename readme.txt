@@ -1,10 +1,9 @@
 === HTTPS Domain Alias ===
 Contributors: ottok, zuige, onnimonni
 Tags: https, ssl, tls, alias, domain, seravo
-Donate link: http://seravo.fi/
+Donate link: https://seravo.com/
 Requires at least: 3.7
-Tested up to: 4.4.1
-Stable tag: 1.4.2
+Tested up to: 4.9.4
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -16,13 +15,13 @@ This plugin is useful e.g. if you have a wildcard SSL/TLS certificate for server
 
 If the site is normally at say `http://example.org/` and you want to have the admin area https protected, but you don't have a SSL/TLS certificate so that `https://example.org/` would work, you can define another domain for secure connections.
 
-For example instead of `https://example.org/wp-login.php` or `https://example.org/wp-admin/` the user is redirected to `https://example.seravo.fi/wp-login.php` or `https://example.seravo.fi/wp-admin/`.
+For example instead of `https://example.org/wp-login.php` or `https://example.org/wp-admin/` the user is redirected to `https://example.seravo.com/wp-login.php` or `https://example.seravo.com/wp-admin/`.
 
 This plugin works with both normal WordPress installations and WordPress Network installation and is compatible with the WordPress MU Domain Mapping plugin.
 
 The code is optimized to be fast and does not for example do any database lookups or use cookies.
 
-This plugin is made by [Seravo Oy](http://seravo.fi/), which specializes in open source support services and among others is the only company in Finland to provide [WordPress Premium Hosting](http://seravo.fi/wordpress-palvelu).
+This plugin is made by [Seravo Oy](https://seravo.com/), which specializes in open source support services and among others is the only company in Finland to provide [WordPress Premium Hosting](https://seravo.com/).
 
 Source available at https://github.com/Seravo/wp-https-domain-alias
 
@@ -71,7 +70,7 @@ Example when on **coss.fi** HTTPS_DOMAIN_ALIAS is **coss.seravo.fi**:
 
     $ curl -I http://coss.fi/wp-admin/
     HTTP/1.1 302 Found
-    Location: https://coss.seravo.fi/wp-admin/
+    Location: https://coss.seravo.com/wp-admin/
 
 == Changelog ==
 
@@ -140,4 +139,3 @@ Added tests
 * Initial release.
 
 == Upgrade Notice ==
-

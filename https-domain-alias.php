@@ -3,13 +3,13 @@
  * Plugin Name: HTTPS Domain Alias
  * Plugin URI: https://github.com/Seravo/wp-https-domain-alias
  * Description: Enable your site to have a different domains for HTTP and HTTPS. Useful e.g. if you have a wildcard SSL/TLS certificate for server but not for each site.
- * Version: 1.4.2
+ * Version: 1.4.3
  * Author: Seravo Oy
- * Author URI: http://seravo.fi
+ * Author URI: https://seravo.com
  * License: GPLv3
  */
 
-/** Copyright 2015-2016 Seravo Oy
+/** Copyright 2015-2018 Seravo Oy
 
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License, version 3, as
@@ -43,7 +43,7 @@
  *
  * Example:
  *  Redirect never points to https://coss.fi/..
- *  but instead always to https://coss.seravo.fi/...
+ *  but instead always to https://coss.seravo.com/...
  *
  * For more information see readme.txt
  *
@@ -423,9 +423,9 @@ function htsda_build_readme_page() {
   </div>
   <?php include( 'admin-readme.html' ); ?>
   <p>&nbsp;</p>
-  <p><small>HTTPS Domain Alias is made by <a href="http://seravo.fi/">Seravo Oy</a>, which specialize
+  <p><small>HTTPS Domain Alias is made by <a href="https://seravo.com/">Seravo Oy</a>, which specialize
     in open source support services and among others is the only company in Finland to provide
-    [WordPress Premium Hosting](http://seravo.fi/wordpress-palvelu).</small></p>
+    [WordPress Premium Hosting](https://seravo.com/wordpress-palvelu).</small></p>
 </div>
 <?php
 }
