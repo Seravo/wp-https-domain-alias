@@ -9,6 +9,7 @@ notifications:
 
 php:
   - nightly
+  - 7.3
   - 7.0
   - 5.6
 
